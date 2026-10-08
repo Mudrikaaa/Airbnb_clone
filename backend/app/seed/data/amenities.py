@@ -1,0 +1,26 @@
+"""Amenities as (name, lucide-react icon name). The frontend renders the icon by this name."""
+
+AMENITIES = [
+    ("Wifi", "Wifi"),
+    ("Kitchen", "CookingPot"),
+    ("Free parking on premises", "Car"),
+    ("Pool", "Waves"),
+    ("Hot tub", "Bath"),
+    ("Air conditioning", "AirVent"),
+    ("Heating", "Heater"),
+    ("Washing machine", "WashingMachine"),
+    ("Dedicated workspace", "Laptop"),
+    ("TV", "Tv"),
+    ("Beach access", "Umbrella"),
+    ("Lake access", "Sailboat"),
+    ("Mountain view", "Mountain"),
+    ("Indoor fireplace", "Flame"),
+    ("Gym", "Dumbbell"),
+    ("Pets allowed", "PawPrint"),
+    ("Coffee maker", "Coffee"),
+    ("Garden", "Trees"),
+    ("Self check-in", "KeyRound"),
+    ("Breakfast", "Croissant"),
+    ("Smoke alarm", "AlarmSmoke"),
+    ("First aid kit", "BriefcaseMedical"),
+]
