@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+/* Airbnb has no dark mode, so neither do we. */
+body {
+  background: #ffffff;
+  color: #222222;
+}
