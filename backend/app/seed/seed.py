@@ -37,7 +37,7 @@ from app.models import (
 )
 from app.seed.data.amenities import AMENITIES
 from app.seed.data.listings import LISTINGS
-from app.seed.data.reviews import FIVE_STAR_BY_CATEGORY, FIVE_STAR_GENERAL, FOUR_STAR
+from app.seed.data.reviews import FIVE_STAR_BY_CATEGORY, FIVE_STAR_GENERAL, FOUR_STAR, THREE_STAR
 from app.seed.data.users import AVATAR, USERS
 from app.services.availability import ranges_overlap
 from app.services.pricing import calculate_quote
@@ -62,6 +62,7 @@ NEW_LISTINGS = {
 }
 REVIEW_COUNT_CHOICES = [3, 3, 3, 4, 4, 5]  # reviews per established listing
 MIN_AVG_RATING, MAX_AVG_RATING = 4.2, 5.0
+LISTINGS_WITH_A_THREE_STAR = 6  # each gets exactly one 3-star review, on different listings
 
 WISHLISTS = {  # user key -> listing titles
     "rohan": ["Pine-wood cabin in Old Manali", "Rice-terrace villa with infinity pool",
@@ -211,15 +212,22 @@ def seed_trips(
             trips.append(trip)
 
 
-def plan_ratings(count: int, rng: random.Random) -> list[int]:
-    """Ratings (4s and 5s) whose average lands in [MIN_AVG_RATING, MAX_AVG_RATING].
+def plan_ratings(count: int, rng: random.Random, include_three: bool = False) -> list[int]:
+    """Ratings whose average lands in [MIN_AVG_RATING, MAX_AVG_RATING].
 
-    Start from a random target average, round the total *up* so we never fall below the target,
-    then turn that many 5s into 4s. Since the target is >= 4.2, we never need a 3.
+    Start from all 5s and a random target average. The "deficit" is how many points below a
+    perfect score we must go; rounding the total *up* means we never fall below the target.
+    Each 4 costs 1 point. A 3 costs 2 points, so with include_three we spend at least 2:
+    the worst case is three reviews (3, 5, 5) = 4.33, still above 4.2.
     """
     target = rng.uniform(MIN_AVG_RATING, MAX_AVG_RATING)
-    fours = 5 * count - min(5 * count, math.ceil(target * count))
-    ratings = [4] * fours + [5] * (count - fours)
+    deficit = 5 * count - min(5 * count, math.ceil(target * count))
+    threes = 0
+    if include_three:
+        threes = 1
+        deficit = max(deficit, 2) - 2
+    ratings = [3] * threes + [4] * deficit + [5] * (count - threes - deficit)
+    assert MIN_AVG_RATING <= sum(ratings) / count <= MAX_AVG_RATING
     rng.shuffle(ratings)
     return ratings
 
@@ -236,12 +244,15 @@ class CommentPicker:
         self.five_by_category = {k: shuffled(v) for k, v in FIVE_STAR_BY_CATEGORY.items()}
         self.five_general = shuffled(FIVE_STAR_GENERAL)
         self.four = shuffled(FOUR_STAR)
+        self.three = shuffled(THREE_STAR)
 
     def pick(self, rating: int, category: str) -> str:
         if rating == 5:
             pool = self.five_by_category.get(category) or self.five_general
-        else:
+        elif rating == 4:
             pool = self.four
+        else:
+            pool = self.three
         if not pool:
             raise RuntimeError("Ran out of unique review comments; add more to app/seed/data/reviews.py")
         return pool.pop()
@@ -254,10 +265,16 @@ def seed_review_history(
     today = date.today()
     everyone = list(users.values())
     comments = CommentPicker(rng)
+    established = [listing for listing in listings if listing.title not in NEW_LISTINGS]
+    # One listing from each of 6 different categories, so the 3-star reviews are spread out
+    # and no listing gets more than one.
+    categories = sorted({listing.category for listing in established})
+    gets_a_three = {
+        rng.choice([listing for listing in established if listing.category == category])
+        for category in rng.sample(categories, LISTINGS_WITH_A_THREE_STAR)
+    }
 
-    for listing in listings:
-        if listing.title in NEW_LISTINGS:
-            continue
+    for listing in established:
         stays = [
             b for b in bookings
             if b.listing is listing and b.status == BOOKING_CONFIRMED and b.check_out <= today
@@ -273,7 +290,7 @@ def seed_review_history(
                 stays.append(stay)
 
         stays.sort(key=lambda s: s.check_in)
-        for stay, rating in zip(stays, plan_ratings(len(stays), rng)):
+        for stay, rating in zip(stays, plan_ratings(len(stays), rng, include_three=listing in gets_a_three)):
             db.add(
                 Review(
                     listing=listing,

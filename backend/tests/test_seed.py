@@ -67,6 +67,14 @@ def test_review_distribution_and_ratings(db):
             assert 4.2 <= avg <= 5.0, (listing.title, avg)
 
 
+def test_a_few_three_star_reviews_on_different_listings(db):
+    seed(db)
+    threes = db.scalars(select(Review).where(Review.rating == 3)).all()
+    assert len(threes) == 6
+    assert len({r.listing_id for r in threes}) == 6
+    assert db.scalars(select(Review).where(Review.rating < 3)).all() == []
+
+
 def test_every_review_belongs_to_its_own_stay(db):
     seed(db)
     reviews = db.scalars(select(Review)).all()

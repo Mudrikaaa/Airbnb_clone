@@ -1,10 +1,31 @@
 """Hand-written review comments. seed.py uses each comment at most once.
 
-Ratings are only 4 or 5: listing averages are kept between 4.2 and 5.0, which never needs a 3.
+Listing averages are kept between 4.2 and 5.0. Ratings are mostly 4s and 5s, plus a handful of 3s
+(at most one per listing) so the reviews don't look suspiciously perfect.
 - FIVE_STAR_BY_CATEGORY: glowing reviews that fit any listing in that category (tried first).
 - FIVE_STAR_GENERAL: glowing reviews that fit any listing (fallback).
 - FOUR_STAR: positive overall, with the kind of small quibble real guests mention.
+- THREE_STAR: a fair, mixed experience — calm, specific complaints alongside what was good.
 """
+
+THREE_STAR = [
+    "The location was great and the host was friendly, but the place needed a deeper clean than we "
+    "expected — dusty shelves and a stained sofa cover. Fine for a short stay.",
+    "Lovely setting, but it's noticeably more worn than the photos suggest. A few things in the "
+    "bathroom need fixing. The host was apologetic and responsive.",
+    "Mixed feelings. The views are beautiful, but the Wi-Fi barely worked for most of our stay and "
+    "the bed was quite uncomfortable. Good if you just want to disconnect.",
+    "Decent stay overall. Check-in was confusing and we waited about 40 minutes for someone to let "
+    "us in. Once we were settled it was comfortable enough.",
+    "The place itself is nice, but noisy repair work on the property started at 8am every day, "
+    "which nobody mentioned before we booked. The host offered a small refund, which we appreciated.",
+    "Good value and a pleasant area, but the kitchen was missing a lot of basics and the hot water "
+    "ran out quickly. It did the job for a couple of nights.",
+    "Pretty place and a kind host, but our bedroom had a damp smell that never quite went away, and "
+    "one of the windows didn't close properly. Mornings on the terrace were lovely though.",
+    "Not bad, not amazing. Comfortable beds and a good location, but the noise from the road made "
+    "it hard to sleep with the windows open.",
+]
 
 FIVE_STAR_BY_CATEGORY = {
     "beach": [
