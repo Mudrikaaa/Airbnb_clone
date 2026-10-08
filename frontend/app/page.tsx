@@ -1,30 +1,19 @@
-"use client";
+import { Suspense } from "react";
+import { ExploreListings } from "@/components/listing/ExploreListings";
+import { ListingCardSkeleton } from "@/components/listing/ListingCardSkeleton";
 
-import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
-
-type Health = { status: string; db: string };
-
-// Phase 0 placeholder: proves the frontend can reach the backend (URL + CORS).
-export default function Home() {
-  const [health, setHealth] = useState<Health | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    apiFetch<Health>("/api/health")
-      .then(setHealth)
-      .catch((e: Error) => setError(e.message));
-  }, []);
-
+// The explore page is driven entirely by the URL (?location=&checkIn=&…). ExploreListings reads
+// useSearchParams, so it sits in a Suspense boundary (required by Next.js for prerendering).
+export default function HomePage() {
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-4 p-6">
-      <h1 className="text-3xl font-semibold text-brand">airbnb clone</h1>
-      <div className="w-full rounded-card border border-line p-6 shadow-pill">
-        <p className="text-sm text-muted">Backend health</p>
-        {health && <p className="text-lg font-semibold">API: {health.status} · DB: {health.db}</p>}
-        {error && <p className="text-lg font-semibold text-brand">Error: {error}</p>}
-        {!health && !error && <p className="text-lg">Checking…</p>}
-      </div>
-    </main>
+    <Suspense
+      fallback={
+        <div className="grid grid-cols-1 gap-x-6 gap-y-10 px-6 pt-[102px] min-[550px]:grid-cols-2 min-[950px]:grid-cols-3 min-[1128px]:grid-cols-4 md:px-10 xl:px-12">
+          {Array.from({ length: 8 }, (_, i) => <ListingCardSkeleton key={i} />)}
+        </div>
+      }
+    >
+      <ExploreListings />
+    </Suspense>
   );
 }

@@ -6,3 +6,122 @@ body {
   background: #ffffff;
   color: #222222;
 }
+
+/* Hide scrollbars on horizontally scrolling rows (category bar) while keeping them scrollable. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- react-day-picker
+   Styled through its default `rdp-*` class names, to match Airbnb's range calendar:
+   48px round day cells, black selected ends, light grey band in between. */
+.rdp-root {
+  --cell: 48px;
+  position: relative;
+}
+.rdp-months {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+}
+.rdp-month_caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.rdp-nav {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.rdp-button_previous,
+.rdp-button_next {
+  pointer-events: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+}
+.rdp-button_previous:hover,
+.rdp-button_next:hover {
+  background: #f7f7f7;
+}
+.rdp-button_previous:disabled,
+.rdp-button_next:disabled {
+  opacity: 0.25;
+  background: none;
+}
+.rdp-chevron {
+  width: 14px;
+  height: 14px;
+}
+.rdp-month_grid {
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.rdp-weekday {
+  width: var(--cell);
+  height: 32px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6c6c6c;
+}
+.rdp-day {
+  width: var(--cell);
+  height: var(--cell);
+  padding: 1px 0;
+  text-align: center;
+}
+.rdp-day_button {
+  width: var(--cell);
+  height: calc(var(--cell) - 2px);
+  border-radius: 9999px;
+  border: 1.5px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #222222;
+}
+.rdp-day:not(.rdp-disabled):not(.rdp-selected) .rdp-day_button:hover {
+  border-color: #222222;
+}
+.rdp-disabled .rdp-day_button {
+  color: #b0b0b0;
+  font-weight: 500;
+  cursor: default;
+}
+/* Booked nights on a listing calendar are struck through (past days are just grey). */
+.rdp-booked .rdp-day_button {
+  text-decoration: line-through;
+}
+.rdp-outside {
+  visibility: hidden;
+}
+.rdp-range_middle {
+  background: #f7f7f7;
+}
+.rdp-range_start:not(.rdp-range_end) {
+  background: linear-gradient(to right, transparent 50%, #f7f7f7 50%);
+}
+.rdp-range_end:not(.rdp-range_start) {
+  background: linear-gradient(to left, transparent 50%, #f7f7f7 50%);
+}
+.rdp-range_start .rdp-day_button,
+.rdp-range_end .rdp-day_button,
+.rdp-selected:not(.rdp-range_middle) .rdp-day_button {
+  background: #222222;
+  color: #ffffff;
+}
+.rdp-today:not(.rdp-selected) .rdp-day_button {
+  text-decoration: underline;
+}
