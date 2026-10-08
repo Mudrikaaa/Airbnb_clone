@@ -19,6 +19,7 @@ class BookingListing(BaseModel):
     city: str
     country: str
     cover_image: str | None
+    host: UserSummary  # shown on trip cards ("Hosted by …")
 
 
 class BookingOut(BaseModel):
@@ -48,6 +49,7 @@ class BookingOut(BaseModel):
                 city=listing.city,
                 country=listing.country,
                 cover_image=listing.images[0].url if listing.images else None,
+                host=UserSummary.model_validate(listing.host),
             ),
             guest=UserSummary.model_validate(booking.guest),
             check_in=booking.check_in,

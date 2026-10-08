@@ -100,7 +100,7 @@ export type Review = {
 
 export type Booking = {
   id: number;
-  listing: { id: number; title: string; city: string; country: string; cover_image: string | null };
+  listing: { id: number; title: string; city: string; country: string; cover_image: string | null; host: UserSummary };
   guest: UserSummary;
   check_in: string;
   check_out: string;

@@ -17,6 +17,7 @@ DATES_TAKEN = "Those dates are no longer available"
 # Everything BookingOut needs, loaded in batched queries instead of one query per booking.
 BOOKING_OUT_OPTIONS = (
     selectinload(Booking.listing).selectinload(Listing.images),
+    selectinload(Booking.listing).selectinload(Listing.host),
     selectinload(Booking.guest),
     selectinload(Booking.review),
 )

@@ -6,6 +6,7 @@ import useSWRInfinite from "swr/infinite";
 import { CategoryBar } from "@/components/search/CategoryBar";
 import { FiltersModal } from "@/components/search/FiltersModal";
 import { EmptyState } from "@/components/listing/EmptyState";
+import { LISTING_GRID } from "@/components/listing/grid";
 import { ListingCard } from "@/components/listing/ListingCard";
 import { ListingCardSkeleton } from "@/components/listing/ListingCardSkeleton";
 import { swrFetcher } from "@/lib/api";
@@ -17,8 +18,7 @@ import { useWishlistToggle } from "@/lib/use-wishlist-toggle";
 // 24 divides evenly into 2, 3, 4 and 6 columns, so "Show more" never leaves a ragged row mid-list.
 const PAGE_SIZE = 24;
 
-const GRID =
-  "grid grid-cols-1 gap-x-6 gap-y-10 min-[550px]:grid-cols-2 min-[950px]:grid-cols-3 min-[1128px]:grid-cols-4 min-[1640px]:grid-cols-5 min-[1880px]:grid-cols-6";
+const GRID = LISTING_GRID;
 
 /** Explore grid. Reads filters from the URL, loads pages with useSWRInfinite, "Show more" fetches the next one. */
 export function ExploreListings() {

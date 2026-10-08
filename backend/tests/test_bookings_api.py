@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import event
 
 from app.models import Booking
 from app.services.pricing import calculate_quote
@@ -27,6 +28,7 @@ def test_create_booking_returns_201_with_server_computed_price(client, db, listi
     assert body["status"] == "confirmed"
     assert body["guest"]["id"] == guest.id
     assert body["listing"]["cover_image"] == "https://img.test/0.jpg"
+    assert body["listing"]["host"]["name"] == "Hana Host"
 
 
 def test_price_snapshot_survives_a_later_price_change(client, db, listing, guest):
@@ -170,3 +172,25 @@ def test_cancel_rules(client, db, listing, guest, other_user):
     started = make_booking(db, listing, guest, days(-1), days(1))
     assert client.post(f"/api/bookings/{started.id}/cancel", headers=auth(guest)).status_code == 409
     assert client.post("/api/bookings/999/cancel", headers=auth(guest)).status_code == 404
+
+
+def test_trips_query_count_does_not_grow_with_bookings(client, db, host, guest):
+    """Images, host, guest and review for every booking must be batched, not loaded per row."""
+    engine = db.get_bind()
+    statements = []
+
+    def count(*_args):
+        statements.append(1)
+
+    def queries_for_trips() -> int:
+        statements.clear()
+        event.listen(engine, "before_cursor_execute", count)
+        client.get("/api/bookings/me", headers=auth(guest))
+        event.remove(engine, "before_cursor_execute", count)
+        return len(statements)
+
+    make_booking(db, make_listing(db, host, title="First place"), guest, days(10), days(12))
+    with_one = queries_for_trips()
+    for i in range(5):
+        make_booking(db, make_listing(db, host, title=f"Place {i}"), guest, days(20 + i * 3), days(22 + i * 3))
+    assert queries_for_trips() == with_one

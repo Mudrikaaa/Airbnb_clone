@@ -17,6 +17,8 @@ type AuthContextValue = {
   user: User | null;
   /** False during server render / hydration, before localStorage can be read. */
   ready: boolean;
+  /** A user id is stored but the user list hasn't arrived yet (so `user` is still null for a moment). */
+  userLoading: boolean;
   loginAs: (userId: number) => void;
   logout: () => void;
   mode: Mode;
@@ -90,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       users,
       user: users.find((u) => u.id === userId) ?? null,
       ready,
+      userLoading: userId > 0 && users.length === 0,
       loginAs,
       logout,
       mode,

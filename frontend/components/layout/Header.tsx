@@ -16,7 +16,11 @@ import type { Segment } from "@/components/search/useSearchDraft";
  * A spacer below keeps page content from sliding under the fixed header.
  */
 export function Header() {
-  const isHome = usePathname() === "/";
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const isCheckout = pathname.startsWith("/book/");
+  // airbnb.com's Trips / Wishlists headers have no search pill, just the logo and account buttons.
+  const hideSearch = pathname === "/trips" || pathname === "/wishlists";
   const [scrolled, setScrolled] = useState(false);
   // Set when the user clicks the compact pill: re-expand on top of the page, opening that segment.
   const [forced, setForced] = useState<Segment | null>(null);
@@ -43,6 +47,15 @@ export function Header() {
 
   const expanded = forced !== null || (isHome && !scrolled);
 
+  // Airbnb's checkout header: just the logo on a plain bar, not sticky (measured: 80px + bottom border).
+  if (isCheckout) {
+    return (
+      <header className="flex h-20 items-center border-b border-line-light bg-white px-6 md:px-20">
+        <Logo />
+      </header>
+    );
+  }
+
   return (
     <>
       {/* Both states use airbnb.com's white → light-grey fade (the compact one is #FFF → #F7F7F7). */}
@@ -54,7 +67,7 @@ export function Header() {
             <div className="flex justify-center">
               {expanded ? (
                 <NavTabs />
-              ) : (
+              ) : hideSearch ? null : (
                 <Suspense fallback={null}>
                   <CompactSearch onExpand={setForced} />
                 </Suspense>

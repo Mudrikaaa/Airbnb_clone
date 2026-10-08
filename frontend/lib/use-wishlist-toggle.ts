@@ -20,7 +20,7 @@ export function useWishlistToggle(apply: (listingId: number, saved: boolean) => 
     apply(listingId, next);
     try {
       await (next ? api.saveToWishlist(listingId) : api.removeFromWishlist(listingId));
-      toast.success(next ? "Saved to your wishlist" : "Removed from your wishlist");
+      toast.success(next ? "Saved to wishlist" : "Removed from wishlist");
     } catch (err) {
       apply(listingId, currentlySaved);
       toast.error(err instanceof ApiError ? err.detail : "Couldn’t update your wishlist. Try again.");
