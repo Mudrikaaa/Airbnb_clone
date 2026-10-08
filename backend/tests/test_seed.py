@@ -1,25 +1,13 @@
+"""Seed invariants. The `db` fixture (fresh in-memory SQLite) lives in conftest.py."""
+
 from datetime import date
 
-import pytest
-from sqlalchemy import create_engine, event, select
-from sqlalchemy.orm import Session
-from sqlalchemy.pool import StaticPool
+from sqlalchemy import select
 
-from app.db import Base
 from app.models import BOOKING_CONFIRMED, Booking, Listing, ListingImage, Review, User
 from app.seed.seed import seed, seed_if_empty, table_counts
 from app.services.availability import ranges_overlap
 from app.services.pricing import calculate_quote
-
-
-@pytest.fixture
-def db():
-    # Fresh in-memory DB per test; StaticPool keeps the single connection alive.
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
-    event.listen(engine, "connect", lambda conn, _: conn.execute("PRAGMA foreign_keys=ON"))
-    Base.metadata.create_all(engine)
-    with Session(engine) as session:
-        yield session
 
 
 def test_seed_counts(db):
