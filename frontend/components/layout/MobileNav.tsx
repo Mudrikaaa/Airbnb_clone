@@ -7,12 +7,18 @@ import { useState } from "react";
 import { MenuItems } from "@/components/layout/ProfileMenu";
 import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/lib/auth-context";
+import { useHydrated } from "@/lib/use-hydrated";
 
 /** Phone-only bottom tab bar (Airbnb's mobile web navigation). */
 export function MobileNav() {
   const pathname = usePathname();
-  const { user, openLogin } = useAuth();
+  const { user: authUser, openLogin } = useAuth();
+  const hydrated = useHydrated();
+  const user = hydrated ? authUser : null; // match the server HTML during hydration
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Listing pages show their own fixed "Reserve" footer instead (like Airbnb).
+  if (pathname.startsWith("/rooms/")) return null;
 
   const tab = (active: boolean) =>
     `flex flex-1 flex-col items-center gap-1 pt-2 text-[10px] font-medium ${active ? "text-brand" : "text-muted"}`;

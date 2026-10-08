@@ -1,4 +1,4 @@
-import { format, isSameMonth, parseISO } from "date-fns";
+import { differenceInDays, differenceInMonths, differenceInYears, format, formatDistanceToNowStrict, isSameMonth, parseISO } from "date-fns";
 
 // Display-only helpers. Prices are always computed by the backend; we only format them.
 
@@ -18,6 +18,26 @@ export function formatDateRange(checkIn: string | Date, checkOut: string | Date)
   const b = typeof checkOut === "string" ? parseISO(checkOut) : checkOut;
   if (isSameMonth(a, b)) return `${format(a, "d")}–${format(b, "d MMM")}`;
   return `${format(a, "d MMM")} – ${format(b, "d MMM")}`;
+}
+
+/** "15 Oct 2026" */
+export function formatLongDate(iso: string): string {
+  return format(parseISO(iso), "d MMM yyyy");
+}
+
+/** Review date like Airbnb: "3 weeks ago" for recent stays, "August 2026" for older ones. */
+export function formatReviewDate(iso: string): string {
+  const date = parseISO(iso);
+  return differenceInDays(new Date(), date) <= 60 ? `${formatDistanceToNowStrict(date)} ago` : format(date, "MMMM yyyy");
+}
+
+/** "4 years on Airbnb" / "7 months on Airbnb" (used for reviewers and hosts). */
+export function timeOnAirbnb(joinedIso: string): { value: number; unit: string } {
+  const joined = parseISO(joinedIso);
+  const years = differenceInYears(new Date(), joined);
+  if (years >= 1) return { value: years, unit: years === 1 ? "year" : "years" };
+  const months = Math.max(1, differenceInMonths(new Date(), joined));
+  return { value: months, unit: months === 1 ? "month" : "months" };
 }
 
 export function plural(count: number, one: string, many = `${one}s`): string {

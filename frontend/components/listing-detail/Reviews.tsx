@@ -1,0 +1,115 @@
+"use client";
+
+import { Star } from "lucide-react";
+import { useState } from "react";
+import { Laurel } from "@/components/listing-detail/Laurel";
+import { Stars } from "@/components/listing-detail/Overview";
+import { Avatar } from "@/components/ui/Avatar";
+import { GreyButton } from "@/components/ui/GreyButton";
+import { Modal } from "@/components/ui/Modal";
+import { formatRating, formatReviewDate, plural, timeOnAirbnb } from "@/lib/format";
+import { isGuestFavourite } from "@/lib/listing";
+import type { Review } from "@/lib/types";
+
+const PREVIEW = 6;
+
+type Props = { reviews: Review[] | undefined; average: number | null; count: number };
+
+export function Reviews({ reviews, average, count }: Props) {
+  const [open, setOpen] = useState(false);
+
+  if (count === 0) {
+    return (
+      <section id="reviews" className="scroll-mt-24 border-b border-line py-12">
+        <h2 className="flex items-center gap-2 text-[22px] font-medium tracking-[-0.44px]">
+          <Star size={18} fill="currentColor" strokeWidth={0} /> No reviews (yet)
+        </h2>
+        <p className="mt-2 text-base text-muted">This place is new on Airbnb. Be one of the first guests to stay and leave a review.</p>
+      </section>
+    );
+  }
+
+  const favourite = isGuestFavourite(average, count);
+  // Count of each star rating, for the "Overall rating" bars.
+  const breakdown = [5, 4, 3, 2, 1].map((stars) => ({ stars, n: reviews?.filter((r) => r.rating === stars).length ?? 0 }));
+
+  return (
+    <section id="reviews" className="scroll-mt-24 border-b border-line py-12">
+      {favourite ? (
+        <div className="flex flex-col items-center text-center">
+          <div className="flex items-center gap-2">
+            <Laurel size={96} />
+            {/* airbnb.com: 100px / 500 / -2px letter-spacing */}
+            <span className="text-[72px] font-medium leading-none tracking-[-2px] md:text-[100px]">{formatRating(average!)}</span>
+            <Laurel size={96} flip />
+          </div>
+          <h2 className="mt-4 text-[22px] font-medium tracking-[-0.44px]">Guest favourite</h2>
+          <p className="mt-2 max-w-sm text-lg text-muted">This home is a guest favourite based on ratings, reviews and reliability</p>
+        </div>
+      ) : (
+        <h2 className="flex items-center gap-2 text-[22px] font-medium tracking-[-0.44px]">
+          <Star size={18} fill="currentColor" strokeWidth={0} />
+          {formatRating(average!)} · {plural(count, "review")}
+        </h2>
+      )}
+
+      {/* Overall rating: 124×4px bars, #DDD track with #222 fill */}
+      <div className={`mt-10 w-48 ${favourite ? "border-b border-line pb-8 md:mx-0" : ""}`}>
+        <p className="text-sm font-medium">Overall rating</p>
+        <ul className="mt-2 space-y-1">
+          {breakdown.map(({ stars, n }) => (
+            <li key={stars} className="flex items-center gap-2 text-xs text-muted">
+              <span className="w-2">{stars}</span>
+              <span className="h-1 w-[124px] rounded-sm bg-line">
+                <span className="block h-1 rounded-sm bg-ink" style={{ width: `${reviews && reviews.length ? (n / reviews.length) * 100 : 0}%` }} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-10 grid gap-x-24 gap-y-10 md:grid-cols-2">
+        {(reviews ?? []).slice(0, PREVIEW).map((r) => (
+          <ReviewCard key={r.id} review={r} clamp />
+        ))}
+      </div>
+
+      {reviews && reviews.length > 0 && (
+        <GreyButton onClick={() => setOpen(true)} className="mt-10">
+          Show all {plural(count, "review")}
+        </GreyButton>
+      )}
+
+      <Modal open={open} onClose={() => setOpen(false)} title={`${formatRating(average!)} · ${plural(count, "review")}`} widthClass="max-w-[780px]">
+        <div className="space-y-10">
+          {(reviews ?? []).map((r) => (
+            <ReviewCard key={r.id} review={r} />
+          ))}
+        </div>
+      </Modal>
+    </section>
+  );
+}
+
+function ReviewCard({ review, clamp = false }: { review: Review; clamp?: boolean }) {
+  const onAirbnb = timeOnAirbnb(review.author.joined_at);
+  return (
+    <article>
+      <div className="flex items-center gap-3">
+        <Avatar user={review.author} size={48} />
+        <div>
+          <h3 className="text-base font-medium">{review.author.name.split(" ")[0]}</h3>
+          <p className="text-sm text-muted">
+            {onAirbnb.value} {onAirbnb.unit} on Airbnb
+          </p>
+        </div>
+      </div>
+      <p className="mt-3 flex items-center gap-1.5 text-sm font-medium">
+        <Stars rating={review.rating} size={9} />
+        <span aria-hidden>·</span>
+        {formatReviewDate(review.created_at)}
+      </p>
+      <p className={`mt-1 text-base leading-6 ${clamp ? "line-clamp-3" : ""}`}>{review.comment}</p>
+    </article>
+  );
+}

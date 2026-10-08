@@ -41,13 +41,15 @@ const int = (value: string | null): number | null => {
 const isoDate = (value: string | null): string | null => (value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null);
 
 export function parseSearch(params: ReadableParams): SearchState {
+  // A check-in on its own is allowed (the listing page keeps "check-in picked, choosing
+  // check-out" in the URL); a check-out only counts if it comes after the check-in.
   const checkIn = isoDate(params.get("checkIn"));
-  const checkOut = isoDate(params.get("checkOut"));
-  const bothDates = checkIn && checkOut && checkOut > checkIn;
+  const rawCheckOut = isoDate(params.get("checkOut"));
+  const checkOut = checkIn && rawCheckOut && rawCheckOut > checkIn ? rawCheckOut : null;
   return {
     location: params.get("location") ?? "",
-    checkIn: bothDates ? checkIn : null,
-    checkOut: bothDates ? checkOut : null,
+    checkIn,
+    checkOut,
     adults: int(params.get("adults")) ?? 0,
     children: int(params.get("children")) ?? 0,
     infants: int(params.get("infants")) ?? 0,
@@ -67,10 +69,8 @@ export function parseSearch(params: ReadableParams): SearchState {
 export function toUrlQuery(state: SearchState): string {
   const q = new URLSearchParams();
   if (state.location.trim()) q.set("location", state.location.trim());
-  if (state.checkIn && state.checkOut) {
-    q.set("checkIn", state.checkIn);
-    q.set("checkOut", state.checkOut);
-  }
+  if (state.checkIn) q.set("checkIn", state.checkIn);
+  if (state.checkIn && state.checkOut) q.set("checkOut", state.checkOut);
   for (const key of ["adults", "children", "infants", "pets"] as const) {
     if (state[key] > 0) q.set(key, String(state[key]));
   }

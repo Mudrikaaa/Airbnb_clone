@@ -10,7 +10,7 @@ import { ListingCard } from "@/components/listing/ListingCard";
 import { ListingCardSkeleton } from "@/components/listing/ListingCardSkeleton";
 import { swrFetcher } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { parseSearch, toApiQuery } from "@/lib/search-params";
+import { EMPTY_SEARCH, parseSearch, toApiQuery, toUrlQuery } from "@/lib/search-params";
 import type { ListingPage } from "@/lib/types";
 import { useWishlistToggle } from "@/lib/use-wishlist-toggle";
 
@@ -49,6 +49,16 @@ export function ExploreListings() {
   const loadingMore = isValidating && size > (data?.length ?? 0);
   const hasMore = total !== undefined && listings.length < total;
   const dates = state.checkIn && state.checkOut ? { checkIn: state.checkIn, checkOut: state.checkOut } : null;
+  // Only the stay (dates + guests) travels to the listing page, not the search filters.
+  const stayQuery = toUrlQuery({
+    ...EMPTY_SEARCH,
+    checkIn: state.checkIn,
+    checkOut: state.checkOut,
+    adults: state.adults,
+    children: state.children,
+    infants: state.infants,
+    pets: state.pets,
+  });
 
   return (
     <>
@@ -74,7 +84,7 @@ export function ExploreListings() {
             )}
             <div className={GRID}>
               {listings.map((l) => (
-                <ListingCard key={l.id} listing={l} dates={dates} onToggleWishlist={toggleWishlist} />
+                <ListingCard key={l.id} listing={l} dates={dates} stayQuery={stayQuery} onToggleWishlist={toggleWishlist} />
               ))}
               {loadingMore && Array.from({ length: 4 }, (_, i) => <ListingCardSkeleton key={`more-${i}`} />)}
             </div>

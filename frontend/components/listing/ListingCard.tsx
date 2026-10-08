@@ -3,27 +3,25 @@ import Link from "next/link";
 import { HeartButton } from "@/components/listing/HeartButton";
 import { ImageCarousel } from "@/components/listing/ImageCarousel";
 import { formatDateRange, formatPrice, formatRating, plural } from "@/lib/format";
+import { isGuestFavourite, typeInCity } from "@/lib/listing";
 import type { ListingCard as Listing } from "@/lib/types";
-
-// Airbnb's "Guest favourite" bar is high; ours: 4.8+ average across at least 3 reviews.
-const isGuestFavourite = (l: Listing) => l.rating !== null && l.rating >= 4.8 && l.review_count >= 3;
-
-const capitalise = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 type Props = {
   listing: Listing;
   onToggleWishlist: (listingId: number, saved: boolean) => void;
   /** Selected search dates, shown on their own line (like airbnb.com). */
   dates?: { checkIn: string; checkOut: string } | null;
+  /** "?checkIn=…&adults=…" carried over to the listing page so the booking card is pre-filled. */
+  stayQuery?: string;
 };
 
 /** Mirrors airbnb.com's search-result card: "Villa in Anjuna ★ 4.5", title, rooms, (dates), price — all 15px. */
-export function ListingCard({ listing, onToggleWishlist, dates }: Props) {
+export function ListingCard({ listing, onToggleWishlist, dates, stayQuery }: Props) {
   return (
-    <Link href={`/rooms/${listing.id}`} className="group block">
+    <Link href={`/rooms/${listing.id}${stayQuery ? `?${stayQuery}` : ""}`} className="group block">
       <div className="relative">
         <ImageCarousel images={listing.images} alt={listing.title} />
-        {isGuestFavourite(listing) && (
+        {isGuestFavourite(listing.rating, listing.review_count) && (
           <span className="absolute left-3 top-3 z-10 rounded-[14px] bg-white/[0.92] px-[9.5px] py-[5.5px] text-sm font-semibold text-ink shadow-badge">
             Guest favourite
           </span>
@@ -34,7 +32,7 @@ export function ListingCard({ listing, onToggleWishlist, dates }: Props) {
       <div className="mt-2.5 text-[15px] leading-[19px]">
         <div className="flex items-start justify-between gap-2">
           <h3 className="truncate font-medium text-ink">
-            {capitalise(listing.property_type)} in {listing.city}
+            {typeInCity(listing.property_type, listing.city)}
           </h3>
           <span className="flex shrink-0 items-center gap-1 text-ink">
             <Star size={12} fill="currentColor" strokeWidth={0} aria-hidden />

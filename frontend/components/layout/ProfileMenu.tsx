@@ -7,10 +7,13 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/auth-context";
+import { useHydrated } from "@/lib/use-hydrated";
 
 /** Right side of the header: "Become a host", avatar circle and the hamburger menu. */
 export function ProfileMenu() {
-  const { user, ready, openLogin } = useAuth();
+  const { user: authUser, openLogin } = useAuth();
+  const hydrated = useHydrated();
+  const user = hydrated ? authUser : null; // match the server HTML during hydration
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +36,7 @@ export function ProfileMenu() {
       <HostLink />
       <button type="button" aria-label={user ? "Your profile" : "Log in or sign up"} className={`${circle} ml-1 overflow-hidden`}
         onClick={() => (user ? setOpen((o) => !o) : openLogin())}>
-        {ready && user ? <Avatar user={user} size={40} /> : <CircleUserRound size={22} strokeWidth={1.75} />}
+        {user ? <Avatar user={user} size={40} /> : <CircleUserRound size={22} strokeWidth={1.75} />}
       </button>
       <button type="button" aria-label="Main navigation menu" aria-expanded={open} className={`${circle} ml-2`}
         onClick={() => setOpen((o) => !o)}>
@@ -50,7 +53,8 @@ export function ProfileMenu() {
 }
 
 function HostLink() {
-  const { user, mode, setMode, openLogin } = useAuth();
+  const { user, mode: storedMode, setMode, openLogin } = useAuth();
+  const mode = useHydrated() ? storedMode : "traveling"; // match the server HTML during hydration
   const router = useRouter();
   const label = mode === "hosting" ? "Switch to travelling" : "Become a host";
   return (

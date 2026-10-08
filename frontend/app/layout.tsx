@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { Footer } from "@/components/layout/Footer";
@@ -24,10 +25,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${inter.variable} antialiased`}>
       <body className="min-h-screen font-sans text-ink">
         <AuthProvider>
-          <Header />
+          {/* Header and MobileNav read the pathname; on dynamic routes (/rooms/[id]) that's only
+              known at request time, so Next.js needs a Suspense boundary around them. */}
+          <Suspense fallback={<div aria-hidden className="h-20 border-b border-line-light" />}>
+            <Header />
+          </Suspense>
           {children}
           <Footer />
-          <MobileNav />
+          <Suspense fallback={null}>
+            <MobileNav />
+          </Suspense>
           <LoginModal />
           {/* Airbnb shows toasts bottom-left as white cards */}
           <Toaster

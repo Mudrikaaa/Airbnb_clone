@@ -16,18 +16,23 @@ const ROWS: { key: GuestKey; title: string; subtitle: string }[] = [
   { key: "pets", title: "Pets", subtitle: "Bringing a service animal?" },
 ];
 
-type Props = { guests: SearchState; onChange: (key: GuestKey, value: number) => void };
+type Props = {
+  guests: SearchState;
+  onChange: (key: GuestKey, value: number) => void;
+  /** A listing's max_guests on the booking card; Airbnb's overall limit in search. */
+  maxGuests?: number;
+};
 
-export function GuestsPanel({ guests, onChange }: Props) {
+export function GuestsPanel({ guests, onChange, maxGuests = MAX_GUESTS }: Props) {
   const total = guests.adults + guests.children;
   const hasDependants = guests.children + guests.infants + guests.pets > 0;
 
   const limits = (key: GuestKey): [number, number] => {
     switch (key) {
       case "adults":
-        return [hasDependants ? 1 : 0, MAX_GUESTS - guests.children];
+        return [hasDependants ? 1 : 0, maxGuests - guests.children];
       case "children":
-        return [0, MAX_GUESTS - guests.adults];
+        return [0, maxGuests - guests.adults];
       case "infants":
         return [0, MAX_INFANTS];
       case "pets":
@@ -55,7 +60,7 @@ export function GuestsPanel({ guests, onChange }: Props) {
               </span>
               <CounterButton
                 label={`Increase ${title.toLowerCase()}`}
-                disabled={value >= max || (key !== "infants" && key !== "pets" && total >= MAX_GUESTS)}
+                disabled={value >= max || (key !== "infants" && key !== "pets" && total >= maxGuests)}
                 onClick={() => onChange(key, value + 1)}
               >
                 <Plus size={14} strokeWidth={2.5} />
