@@ -115,6 +115,7 @@ export type Booking = {
   status: "confirmed" | "cancelled";
   created_at: string;
   has_review: boolean;
+  review_rating: number | null;
 };
 
 export type Trips = { upcoming: Booking[]; past: Booking[]; cancelled: Booking[] };

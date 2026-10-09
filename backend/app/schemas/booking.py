@@ -39,6 +39,7 @@ class BookingOut(BaseModel):
     status: str
     created_at: datetime
     has_review: bool
+    review_rating: int | None  # the guest's own stars, shown on the trip card once reviewed
 
     @classmethod
     def build(cls, booking: Booking):
@@ -66,6 +67,7 @@ class BookingOut(BaseModel):
             status=booking.status,
             created_at=booking.created_at,
             has_review=booking.review is not None,
+            review_rating=booking.review.rating if booking.review else None,
         )
 
 

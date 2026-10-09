@@ -1,12 +1,17 @@
+import { Star } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { formatDateRange, formatPrice, plural } from "@/lib/format";
 import type { Booking } from "@/lib/types";
 
-type Props = { booking: Booking; onCancel?: (booking: Booking) => void };
+type Props = { booking: Booking; onCancel?: (booking: Booking) => void; onReview?: (booking: Booking) => void };
 
-/** One reservation: photo, place, dates, host and total. `onCancel` is only passed when cancelling is allowed. */
-export function TripCard({ booking, onCancel }: Props) {
+/**
+ * One reservation: photo, place, dates, host and total. `onCancel` is only passed when cancelling is allowed,
+ * `onReview` only for a finished stay that has no review yet.
+ */
+export function TripCard({ booking, onCancel, onReview }: Props) {
+  const rating = booking.review_rating;
   const { listing } = booking;
   const cancelled = booking.status === "cancelled";
   const year = booking.check_out.slice(0, 4);
@@ -44,6 +49,23 @@ export function TripCard({ booking, onCancel }: Props) {
             <span className="font-semibold">{formatPrice(booking.total_price)}</span> total
           </p>
           <div className="flex items-center gap-3">
+            {rating !== null && (
+              <span className="flex items-center gap-0.5 text-sm" aria-label={`You rated this stay ${rating} out of 5`}>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <Star key={i} size={14} className={i < rating ? "fill-ink text-ink" : "text-line-strong"} />
+                ))}
+                <span className="ml-1.5 text-muted">Your review</span>
+              </span>
+            )}
+            {onReview && (
+              <button
+                type="button"
+                onClick={() => onReview(booking)}
+                className="h-10 rounded-lg bg-ink px-4 text-sm font-semibold text-white hover:bg-black"
+              >
+                Write a review
+              </button>
+            )}
             <Link href={`/rooms/${listing.id}`} className="text-sm font-semibold underline">
               View listing
             </Link>

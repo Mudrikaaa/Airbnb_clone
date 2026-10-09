@@ -6,6 +6,7 @@ import { useState } from "react";
 import useSWR from "swr";
 import { LoginPrompt } from "@/components/auth/LoginPrompt";
 import { CancelModal } from "@/components/trips/CancelModal";
+import { ReviewModal } from "@/components/trips/ReviewModal";
 import { TripCard } from "@/components/trips/TripCard";
 import { swrFetcher } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -16,6 +17,7 @@ export function TripsView() {
   const { user, ready, userLoading } = useAuth();
   const { data, error } = useSWR<Trips>(user ? ["/api/bookings/me", user.id] : null, swrFetcher);
   const [cancelling, setCancelling] = useState<Booking | null>(null);
+  const [reviewing, setReviewing] = useState<Booking | null>(null);
 
   if (!ready || userLoading) return <TripsSkeleton />;
   if (!user) {
@@ -47,7 +49,7 @@ export function TripsView() {
       ) : (
         <div className="mt-12 space-y-14">
           <Section title="Upcoming reservations" empty="No upcoming reservations." bookings={data.upcoming} canCancel={canCancel} onCancel={setCancelling} />
-          <Section title="Where you’ve been" empty="Your past stays will show up here." bookings={data.past} canCancel={canCancel} onCancel={setCancelling} />
+          <Section title="Where you’ve been" empty="Your past stays will show up here." bookings={data.past} canCancel={canCancel} onCancel={setCancelling} onReview={setReviewing} />
           {data.cancelled.length > 0 && (
             <Section title="Cancelled" bookings={data.cancelled} canCancel={canCancel} onCancel={setCancelling} />
           )}
@@ -55,6 +57,7 @@ export function TripsView() {
       )}
 
       <CancelModal booking={cancelling} onClose={() => setCancelling(null)} />
+      <ReviewModal booking={reviewing} onClose={() => setReviewing(null)} />
     </main>
   );
 }
@@ -65,9 +68,11 @@ type SectionProps = {
   bookings: Booking[];
   canCancel: (b: Booking) => boolean;
   onCancel: (b: Booking) => void;
+  /** Only passed for past stays: confirmed ones without a review get "Write a review". */
+  onReview?: (b: Booking) => void;
 };
 
-function Section({ title, empty, bookings, canCancel, onCancel }: SectionProps) {
+function Section({ title, empty, bookings, canCancel, onCancel, onReview }: SectionProps) {
   return (
     <section aria-label={title}>
       <h2 className="text-[22px] font-semibold leading-[26px] tracking-[-0.44px]">
@@ -78,7 +83,12 @@ function Section({ title, empty, bookings, canCancel, onCancel }: SectionProps) 
       ) : (
         <div className="mt-6 grid gap-6 xl:grid-cols-2">
           {bookings.map((b) => (
-            <TripCard key={b.id} booking={b} onCancel={canCancel(b) ? onCancel : undefined} />
+            <TripCard
+              key={b.id}
+              booking={b}
+              onCancel={canCancel(b) ? onCancel : undefined}
+              onReview={onReview && b.status === "confirmed" && !b.has_review ? onReview : undefined}
+            />
           ))}
         </div>
       )}

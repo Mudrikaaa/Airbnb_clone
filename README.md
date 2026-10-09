@@ -16,6 +16,7 @@ A full-stack Airbnb clone: browse and search homes, see listing details, book da
 - **Listing page** — photo grid and gallery, amenities, 2-month availability calendar with booked nights struck through, sticky booking card with a server-calculated price breakdown, reviews, map, host card.
 - **Book** — "Confirm and pay" (mock card form), instant confirmation, overlapping dates are rejected with a 409.
 - **Trips / Wishlists** — upcoming, past and cancelled stays with cancel; hearts everywhere with optimistic updates.
+- **Reviews** — after a completed stay, "Write a review" on Trips (1–5 stars + comment); the listing's rating updates straight away.
 - **Host mode** — Today / Upcoming reservations with payouts, all reservations, a listings grid/table, and a create / edit form (photos by URL with preview and reorder) with delete rules.
 
 ## Tech stack
@@ -235,7 +236,7 @@ All routes are under `/api`; errors are always `{"detail": "..."}` (422 also inc
 3. Photo uploads to object storage, with image resizing.
 4. Real payments (Stripe) and transactional emails; host / guest messaging.
 5. Map-based search and a price histogram in Filters; text search with suggestions from real data.
-6. Reviews written from the Trips page, host replies, and per-category ratings.
+6. Host replies to reviews and per-category ratings.
 7. Browser tests (Playwright) for the booking and hosting flows, plus CI that runs lint, types, build and `pytest`.
 8. A host calendar with blocked dates, custom prices and seasonal rates.
 
