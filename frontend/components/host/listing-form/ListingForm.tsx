@@ -4,29 +4,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { DeleteListingModal } from "@/components/host/DeleteListingModal";
 import {
   AmenityFields, BasicsFields, CategoryFields, DescriptionFields, LocationFields, PhotoFields, PriceFields, PropertyTypeFields, TitleFields,
 } from "@/components/host/listing-form/FieldGroups";
 import { Section } from "@/components/host/listing-form/FormParts";
-import { EMPTY_VALUES, FIELD_ORDER, toInput, validate, valuesFromListing, type FormErrors, type FormValues } from "@/components/host/listing-form/form-state";
+import { EMPTY_VALUES, FIELD_ORDER, toInput, validate, type FormErrors, type FormValues } from "@/components/host/listing-form/form-state";
 import { ApiError, apiFetch } from "@/lib/api";
 import { refreshAfterListingChange } from "@/lib/host-cache";
 import type { ListingDetail } from "@/lib/types";
 
 /**
- * One form for both "Create a listing" (no `listing`) and "Edit listing" (`listing` = current data).
- * Client-side checks mirror the backend's rules; anything the server still rejects (422) is shown
+ * Single-page "Create your listing" form for existing hosts (editing uses ListingEditor, new hosts the
+ * step flow; all three share FieldGroups). Client-side checks mirror the backend's rules; anything the server still rejects (422) is shown
  * under the field it names.
  */
-export function ListingForm({ listing }: { listing?: ListingDetail }) {
+export function ListingForm() {
   const router = useRouter();
-  const editing = listing !== undefined;
-  const [values, setValues] = useState<FormValues>(() => (listing ? valuesFromListing(listing) : EMPTY_VALUES));
+  const [values, setValues] = useState<FormValues>(EMPTY_VALUES);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Editing a field clears that field's error straight away (client or server).
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) => {
@@ -50,12 +47,9 @@ export function ListingForm({ listing }: { listing?: ListingDetail }) {
     setSubmitting(true);
     setFormError(null);
     try {
-      await apiFetch<ListingDetail>(editing ? `/api/listings/${listing.id}` : "/api/listings", {
-        method: editing ? "PUT" : "POST",
-        body: JSON.stringify(toInput(values)),
-      });
+      await apiFetch<ListingDetail>("/api/listings", { method: "POST", body: JSON.stringify(toInput(values)) });
       await refreshAfterListingChange();
-      toast.success(editing ? "Listing updated" : "Listing created");
+      toast.success("Listing created");
       router.push("/hosting/listings");
     } catch (err) {
       setSubmitting(false);
@@ -71,10 +65,8 @@ export function ListingForm({ listing }: { listing?: ListingDetail }) {
 
   return (
     <form onSubmit={submit} noValidate className="mx-auto max-w-[640px] px-6 pb-40 pt-4">
-      <h1 className="text-[32px] font-semibold leading-9 tracking-[-0.96px]">{editing ? "Edit your listing" : "Create your listing"}</h1>
-      <p className="mt-3 text-lg text-muted">
-        {editing ? "Update the details guests see. Changes go live as soon as you save." : "Tell guests about your place. You can edit everything later."}
-      </p>
+      <h1 className="text-[32px] font-semibold leading-9 tracking-[-0.96px]">Create your listing</h1>
+      <p className="mt-3 text-lg text-muted">Tell guests about your place. You can edit everything later.</p>
 
       {formError && (
         <div role="alert" className="mt-8 rounded-xl border border-[#C13515] bg-[#FDECEA] px-4 py-3 text-sm text-[#C13515]">
@@ -114,33 +106,18 @@ export function ListingForm({ listing }: { listing?: ListingDetail }) {
       {/* Footer bar: Cancel on the left, the main action on the right (Airbnb's Back / Next position) */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white">
         <div className="flex items-center justify-between gap-4 px-6 py-4 md:px-12">
-          <div className="flex items-center gap-6">
-            <Link href="/hosting/listings" className="text-base font-semibold underline">
-              Cancel
-            </Link>
-            {editing && (
-              <button type="button" onClick={() => setConfirmDelete(true)} className="text-base font-semibold text-[#C13515] underline">
-                Delete listing
-              </button>
-            )}
-          </div>
+          <Link href="/hosting/listings" className="text-base font-semibold underline">
+            Cancel
+          </Link>
           <button
             type="submit"
             disabled={submitting}
             className="h-12 rounded-btn bg-brand-gradient px-8 text-base font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? (editing ? "Saving…" : "Publishing…") : editing ? "Save changes" : "Publish listing"}
+            {submitting ? "Publishing…" : "Publish listing"}
           </button>
         </div>
       </div>
-
-      {editing && (
-        <DeleteListingModal
-          listing={confirmDelete ? { id: listing.id, title: listing.title } : null}
-          onClose={() => setConfirmDelete(false)}
-          onDeleted={() => router.push("/hosting/listings")}
-        />
-      )}
     </form>
   );
 }
