@@ -70,7 +70,10 @@ export function Header() {
         {/* Tablet & desktop */}
         <div className="hidden px-10 md:block xl:px-12">
           <div className={`grid grid-cols-[1fr_auto_1fr] items-center gap-4 ${expanded ? "h-24" : "h-20"}`}>
-            <Logo />
+            {/* Measured: in the tall header Airbnb's logo sits 24px from the top, above the row's centre. */}
+            <div className={expanded ? "self-start pt-6" : ""}>
+              <Logo />
+            </div>
             <div className="flex justify-center">
               {expanded ? (
                 <NavTabs />

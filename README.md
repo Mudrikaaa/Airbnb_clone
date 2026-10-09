@@ -241,3 +241,6 @@ All routes are under `/api`; errors are always `{"detail": "..."}` (422 also inc
 
 ## Deployment
 See [docs/DEPLOY.md](docs/DEPLOY.md) for the exact Vercel and Railway settings, the one-time production reset, and a smoke test for the deployed links.
+
+## Credits
+Header tab icons are [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) 3D images by Microsoft, used under the MIT licence (`frontend/public/icons/`).
