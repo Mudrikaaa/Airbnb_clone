@@ -7,6 +7,14 @@ body {
   color: #222222;
 }
 
+/* Tailwind v4 gives buttons the arrow cursor; airbnb.com shows the hand on every clickable control. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
 /* Hide scrollbars on horizontally scrolling rows (category bar) while keeping them scrollable. */
 .no-scrollbar {
   scrollbar-width: none;
