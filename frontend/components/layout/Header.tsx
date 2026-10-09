@@ -11,7 +11,7 @@ import { CompactSearch } from "@/components/search/CompactSearch";
 import { MobileSearch } from "@/components/search/MobileSearch";
 import { SearchBar } from "@/components/search/SearchBar";
 import type { Segment } from "@/components/search/useSearchDraft";
-import { isCheckout, isHostDashboard, isHostForm } from "@/lib/chrome";
+import { isCheckout, isHostDashboard, isHostForm, isListingEditor } from "@/lib/chrome";
 
 /**
  * Fixed header. On "/" it starts expanded (tabs + big search pill, 200px tall like airbnb.com) and
@@ -60,6 +60,7 @@ export function Header() {
   }
 
   // Hosting pages have their own headers (dashboard: tabs; create/edit: logo + Exit).
+  if (isListingEditor(pathname)) return null;
   if (isHostForm(pathname)) return <CreateFlowHeader />;
   if (isHostDashboard(pathname)) return <HostHeader />;
 

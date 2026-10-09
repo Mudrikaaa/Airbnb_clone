@@ -7,5 +7,8 @@ export const isHostForm = (pathname: string) =>
   pathname.startsWith("/become-a-host") ||
   pathname === "/hosting/listings/new" || /^\/hosting\/listings\/[^/]+\/edit$/.test(pathname);
 
+/** The listing editor (/hosting/listings/[id]/edit) draws its own top bar. */
+export const isListingEditor = (pathname: string) => /^\/hosting\/listings\/[^/]+\/edit$/.test(pathname);
+
 /** Everything under /hosting that isn't the form: dashboard with the host header. */
 export const isHostDashboard = (pathname: string) => pathname.startsWith("/hosting") && !isHostForm(pathname);

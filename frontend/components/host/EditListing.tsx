@@ -3,12 +3,12 @@
 import Link from "next/link";
 import useSWR from "swr";
 import { RequireLogin } from "@/components/auth/RequireLogin";
-import { ListingForm } from "@/components/host/listing-form/ListingForm";
+import { ListingEditor } from "@/components/host/listing-editor/ListingEditor";
 import { ApiError, swrFetcher } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import type { ListingDetail } from "@/lib/types";
 
-/** /hosting/listings/[id]/edit — loads the listing, checks it's mine, then shows the shared form. */
+/** /hosting/listings/[id]/edit — loads the listing, checks it's mine, then shows the section-by-section editor. */
 export function EditListing({ id }: { id: number }) {
   return (
     <RequireLogin heading="Edit listing" title="Log in to edit your listing" text="You can edit your listings once you’ve logged in.">
@@ -48,5 +48,5 @@ function Loader({ id }: { id: number }) {
       </main>
     );
   }
-  return <ListingForm listing={listing} />;
+  return <ListingEditor listing={listing} />;
 }

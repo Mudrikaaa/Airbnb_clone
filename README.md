@@ -18,7 +18,7 @@ A full-stack Airbnb clone: browse and search homes, see listing details, book da
 - **Trips / Wishlists** — upcoming, past and cancelled stays with cancel; hearts everywhere with optimistic updates.
 - **Reviews** — after a completed stay, "Write a review" on Trips (1–5 stars + comment); the listing's rating updates straight away.
 - **Become a host** — users without listings get "Become a host", an intro page and a one-question-per-screen create flow (Back / Next, progress bar); publishing makes them a host.
-- **Host mode** — Today / Upcoming reservations with payouts, all reservations, a listings grid/table, and a create / edit form (photos by URL with preview and reorder) with delete rules.
+- **Host mode** — Today / Upcoming reservations with payouts, all reservations, a listings grid/table, a create form (photos by URL with preview and reorder), and an Airbnb-style listing editor (section cards with previews on the left, one section edited and saved at a time on the right) with delete rules.
 
 ## Tech stack
 | Layer | Choice | Why |
