@@ -12,11 +12,12 @@ A full-stack Airbnb clone: browse and search homes, see listing details, book da
 > Try **Rohan Gupta** (guest, has trips and a wishlist) and **Aarav Mehta** (Superhost, 7 listings and 30+ reservations).
 
 ## What you can do
-- **Explore** — category row, Airbnb-style search bar (where / when / who), a Filters dialog (price slider, property type, rooms, amenities, live "Show N places" count), paginated grid. All filters live in the URL, so every view is shareable.
-- **Listing page** — photo grid and gallery, amenities, 2-month availability calendar with booked nights struck through, sticky booking card with a server-calculated price breakdown, reviews, map, host card.
+- **Explore** — All / Homes / Experiences / Services tabs, category row, Airbnb-style search bar (where / when / who), a Filters dialog (price slider, property type, rooms, amenities, live "Show N places" count), paginated grid. All filters live in the URL, so every view is shareable.
+- **Listing page** — photo grid and gallery, amenities, 2-month availability calendar with booked nights struck through, sticky booking card with a server-calculated price breakdown, a sticky section nav (price or "Add dates for prices", rating, Reserve), a "Free cancellation" tag, reviews with the six category ratings, "Guests mention" chips and a "How reviews work" explainer, map, host card.
 - **Book** — "Confirm and pay" (mock card form), instant confirmation, overlapping dates are rejected with a 409.
 - **Trips / Wishlists** — upcoming, past and cancelled stays with cancel; hearts everywhere with optimistic updates.
-- **Reviews** — after a completed stay, "Write a review" on Trips (1–5 stars + comment); the listing's rating updates straight away.
+- **Reviews** — after a completed stay, "Write a review" on Trips (1–5 stars, optional cleanliness / accuracy / check-in / communication / location / value stars, comment); the listing's ratings update straight away.
+- **Profile menu** — Airbnb's menu (Wishlists, Trips, Messages, Profile, settings, Become a host / Switch to hosting, …); items we haven't built open a "Coming soon" dialog.
 - **Become a host** — users without listings get "Become a host", an intro page and a one-question-per-screen create flow (Back / Next, progress bar); publishing makes them a host.
 - **Host mode** — Today / Upcoming reservations with payouts, all reservations, a listings grid/table, a create form (photos by URL with preview and reorder), and an Airbnb-style listing editor (section cards with previews on the left, one section edited and saved at a time on the right) with delete rules.
 
@@ -28,7 +29,7 @@ A full-stack Airbnb clone: browse and search homes, see listing details, book da
 | UI libraries | `react-day-picker` + `date-fns` (calendars), `lucide-react` (icons), `sonner` (toasts), `react-leaflet` + OpenStreetMap tiles (map) | Each is used for one job only |
 | Backend | Python 3.12, FastAPI, SQLAlchemy 2.0 (typed `Mapped[]` models), Pydantic v2, Uvicorn | Typed end to end; business rules live in plain service functions |
 | Database | SQLite (file on a Railway volume in production) | Zero setup, enough for this scale; see assumptions |
-| Tests | pytest (73 tests, in-memory SQLite) | Overlap rules, pricing, booking / host / search APIs, seed invariants, N+1 guards |
+| Tests | pytest (76 tests, in-memory SQLite) | Overlap rules, pricing, booking / host / search APIs, seed invariants, N+1 guards |
 | Hosting | Vercel (frontend), Railway (backend + volume) | |
 
 ## Run it locally
@@ -211,18 +212,18 @@ All routes are under `/api`; errors are always `{"detail": "..."}` (422 also inc
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | GET | `/health` | – | Health check (touches the database) |
-| GET | `/users` | – | Seeded users for the "Log in as…" menu |
+| GET | `/users` | – | Seeded users for the "Log in as…" menu (`is_host` = has at least one active listing) |
 | GET | `/users/me` | required | Current user |
 | GET | `/meta/amenities` · `/meta/categories` · `/meta/property-types` | – | Filter vocabularies |
 | GET | `/listings` | optional | Search: `location`, `check_in`/`check_out`, `guests`, `min_price`/`max_price`, `property_type` (comma list), `category`, `bedrooms`/`beds`/`bathrooms` (minimums), `amenities` (must have all), `page`, `page_size` |
-| GET | `/listings/{id}` | optional | Detail: images, amenities, host stats, rating summary |
+| GET | `/listings/{id}` | optional | Detail: images, amenities, host stats, rating summary (overall + six category averages) |
 | GET | `/listings/{id}/availability` | – | Booked date ranges (for the calendar) |
 | GET | `/listings/{id}/quote` | – | Price breakdown + whether the dates are free |
-| GET / POST | `/listings/{id}/reviews` | – / required | Reviews; post only for your own completed stay |
+| GET / POST | `/listings/{id}/reviews` | – / required | Reviews; post only for your own completed stay (category ratings optional) |
 | POST | `/listings` | required | Create a listing (you become its host) |
 | PUT / DELETE | `/listings/{id}` | owner | Replace / soft-delete (409 if upcoming reservations) |
 | POST | `/bookings` | required | Book; price recomputed server-side, 409 on overlap |
-| GET | `/bookings/me` | required | My trips: upcoming / past / cancelled |
+| GET | `/bookings/me` | required | My trips: upcoming / past / cancelled (each with `has_review` and your `review_rating`) |
 | POST | `/bookings/{id}/cancel` | guest | Cancel (up to the day before check-in) |
 | GET | `/host/listings` · `/host/bookings` | required | My listings; bookings on my listings (with payout) |
 | GET | `/wishlists` | required | Saved listings |
@@ -230,12 +231,17 @@ All routes are under `/api`; errors are always `{"detail": "..."}` (422 also inc
 
 ## Assumptions and mocked parts
 - **Login is mocked.** The frontend stores a user id in `localStorage` and sends it as `X-User-Id`; the backend trusts it. This is fine for a demo, **not** for production, where this single dependency (`deps.get_current_user`) would be replaced by sessions or JWTs.
-- **Payments are mocked.** The card form checks the *format* only; nothing is charged or stored. Messaging, identity verification, the host Calendar and Messages tabs, and the **Experiences** and **Services** tabs are "coming soon" pages.
+- **Payments are mocked.** The card form checks the *format* only; nothing is charged or stored. Messaging, identity verification, the host Calendar and Messages tabs, the **Experiences** and **Services** tabs, and the profile-menu items we haven't built (Profile, Notifications, Account settings, Languages & currency, Help Centre, Refer a host, Find a co-host) are "coming soon".
 - **No migrations (Alembic).** Tables are created with `Base.metadata.create_all` on startup. The seed runs only when the database is empty, so restarts never duplicate data; `python -m app.seed.seed --reset` wipes and reseeds. Booking and review dates in the seed are generated relative to today, so there are always upcoming and past trips.
 - **SQLite on one Railway volume** keeps bookings across restarts and avoids running a database server. It allows one writer at a time, which is why the booking endpoint re-checks for overlaps after inserting. Render's free disk would be ephemeral, so it isn't used.
 - **Prices are whole rupees (INR)**, with a flat 14 % service fee and no taxes.
 - **Photos** are Unsplash links chosen by theme (not photos of the real places), and all seed image URLs are verified by `scripts/check_images.py`. Host-added photos are URLs, not uploads.
 - **Dates** are plain calendar dates with no timezone handling.
+- **Hosts** are users with at least one *active* listing; anyone else sees "Become a host", and `/hosting` sends them to the intro page.
+- **"Free cancellation"** reflects our rule: a guest can cancel for a full refund until the day before check-in.
+- **"Guests mention"** counts are computed in the browser from the listing's review comments with simple keyword groups (e.g. Nature = garden, trees, birds, nature); a review counts once per group.
+- **Category ratings** are optional per review; seeded reviews get scores close to their overall rating. Adding these columns changed the schema, so production needed one `--reset` (see docs/DEPLOY.md).
+- **Typography**: Airbnb Cereal isn't public, so the app uses Inter (one font, loaded once via `next/font`) with sizes, line heights and weights measured on airbnb.co.in and kept as named tokens in `tailwind.config.ts`.
 
 ## What I would do next
 1. Real authentication (sessions / JWT), then lock down `/users`.
@@ -251,4 +257,4 @@ All routes are under `/api`; errors are always `{"detail": "..."}` (422 also inc
 See [docs/DEPLOY.md](docs/DEPLOY.md) for the exact Vercel and Railway settings, the one-time production reset, and a smoke test for the deployed links.
 
 ## Credits
-Header tab icons and the "Guests mention" chip icons are [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) 3D images by Microsoft, used under the MIT licence (`frontend/public/icons/`).
+Header tab icons, the compact search pill's house and the "Guests mention" chip icons are [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) 3D images by Microsoft, used under the MIT licence (`frontend/public/icons/`).
