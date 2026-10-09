@@ -1,11 +1,14 @@
 "use client";
 
-import { CircleUserRound, Menu } from "lucide-react";
+import {
+  ArrowLeftRight, Bell, CircleHelp, CircleUserRound, Globe, Heart, LogOut, type LucideIcon, Menu, MessageSquare, Plane, Settings, UserPlus, Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/ui/Avatar";
+import { ComingSoonModal } from "@/components/ui/ComingSoonModal";
 import { useAuth } from "@/lib/auth-context";
 import { useHydrated } from "@/lib/use-hydrated";
 
@@ -80,6 +83,7 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
   const { user, users, loginAs, logout, setMode, openLogin } = useAuth();
   // Hosting pages say "Switch to travelling"; every traveller page says "Switch to hosting".
   const hosting = usePathname().startsWith("/hosting");
+  const [soon, setSoon] = useState<string | null>(null); // feature shown in the Coming soon modal
   const router = useRouter();
   const row = "block w-full px-4 py-3 text-left text-sm hover:bg-subtle";
 
@@ -108,29 +112,46 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
   }
 
   const go = (href: string) => { onNavigate(); router.push(href); };
+  const item = `${row} flex items-center gap-3`;
+  const soonItem = (label: string, Icon: LucideIcon) => (
+    <button type="button" className={item} onClick={() => setSoon(label)}>
+      <Icon size={18} strokeWidth={1.75} /> {label}
+    </button>
+  );
+  const toggleHosting = () => {
+    if (!hosting && !user.is_host) return go("/become-a-host");
+    setMode(hosting ? "traveling" : "hosting");
+    go(hosting ? "/" : "/hosting");
+  };
   return (
     <>
-      <p className="px-4 pb-2 pt-1 text-xs text-muted">Logged in as <span className="font-medium text-ink">{user.name}</span></p>
-      <Link href="/wishlists" className={`${row} font-medium`} onClick={onNavigate}>Wishlists</Link>
-      <Link href="/trips" className={`${row} font-medium`} onClick={onNavigate}>Trips</Link>
-      <button type="button" className={`${row} font-medium`} onClick={() => { onNavigate(); toast("Messages are coming soon"); }}>
-        Messages
+      <Link href="/wishlists" className={item} onClick={onNavigate}><Heart size={18} strokeWidth={1.75} /> Wishlists</Link>
+      <Link href="/trips" className={item} onClick={onNavigate}><Plane size={18} strokeWidth={1.75} /> Trips</Link>
+      {soonItem("Messages", MessageSquare)}
+      {soonItem("Profile", CircleUserRound)}
+      <hr className="my-2 border-line-light" />
+      {soonItem("Notifications", Bell)}
+      {soonItem("Account settings", Settings)}
+      {soonItem("Languages & currency", Globe)}
+      {soonItem("Help Centre", CircleHelp)}
+      <hr className="my-2 border-line-light" />
+      {/* Airbnb's "Become a host" block: title + one-line pitch (no illustration) */}
+      <button type="button" className={`${row} flex flex-col items-start gap-1`} onClick={toggleHosting}>
+        <span className="font-medium">{hosting ? "Switch to travelling" : user.is_host ? "Switch to hosting" : "Become a host"}</span>
+        {!hosting && <span className="text-xs leading-4 text-muted">It’s easy to start hosting and earn extra income.</span>}
       </button>
       <hr className="my-2 border-line-light" />
-      <button type="button" className={row} onClick={() => {
-        if (!hosting && !user.is_host) return go("/become-a-host");
-        setMode(hosting ? "traveling" : "hosting");
-        go(hosting ? "/" : "/hosting");
-      }}>
-        {hosting ? "Switch to travelling" : user.is_host ? "Switch to hosting" : "Become a host"}
-      </button>
-      <button type="button" className={row} onClick={() => { onNavigate(); openLogin(); }}>
-        Log in as another user
-      </button>
+      {soonItem("Refer a host", UserPlus)}
+      {soonItem("Find a co-host", Users)}
       <hr className="my-2 border-line-light" />
-      <button type="button" className={row} onClick={() => { logout(); onNavigate(); toast("You’ve been logged out"); router.push("/"); }}>
-        Log out
+      <button type="button" className={item} onClick={() => { onNavigate(); openLogin(); }}>
+        <ArrowLeftRight size={18} strokeWidth={1.75} /> Log in as another user
       </button>
+      <button type="button" className={item} onClick={() => { logout(); onNavigate(); toast("You’ve been logged out"); router.push("/"); }}>
+        <LogOut size={18} strokeWidth={1.75} /> Log out
+      </button>
+      {/* Not portaled, so clicks inside it don't count as "outside the menu"; closing it closes the menu too. */}
+      <ComingSoonModal open={soon !== null} onClose={() => { setSoon(null); onNavigate(); }} feature={soon ?? ""} />
     </>
   );
 }
