@@ -38,10 +38,10 @@ export function SectionNav({ listing, nights, visible, showReserve }: Props) {
             <div className="text-right">
               {hasDates && quote ? (
                 <p>
-                  <span className="text-base font-semibold">{formatPrice(quote.total)}</span> <span className="text-sm">for {plural(quote.nights, "night")}</span>
+                  <span className="text-base font-medium">{formatPrice(quote.total)}</span> <span className="text-sm">for {plural(quote.nights, "night")}</span>
                 </p>
               ) : (
-                <p className="text-base font-semibold">Add dates for prices</p>
+                <p className="text-base font-medium">Add dates for prices</p>
               )}
               {count > 0 && (
                 <p className="flex items-center justify-end gap-1 text-xs">

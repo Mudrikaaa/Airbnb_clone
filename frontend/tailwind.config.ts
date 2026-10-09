@@ -17,6 +17,16 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
       },
+      // Type scale measured on airbnb.co.in at 1440 and 1920px (size / line-height / tracking).
+      // Weights stay explicit in the markup: 400 for body, 500 for labels and titles, 600 only for big headings.
+      fontSize: {
+        "title-lg": ["26px", { lineHeight: "30px" }], // listing title
+        heading: ["22px", { lineHeight: "26px", letterSpacing: "-0.44px" }], // "Entire …" line, section headings
+        body: ["16px", { lineHeight: "22px" }], // description and long text
+        card: ["15px", { lineHeight: "19px" }], // listing card title, details and price
+        tab: ["14px", { lineHeight: "18px" }], // header tabs
+        label: ["12px", { lineHeight: "16px" }], // search pill labels, rating category label and value
+      },
       borderRadius: {
         card: "20px", // listing photos (airbnb.com moved from 12px to 20px)
         btn: "8px",

@@ -29,7 +29,7 @@ export function GuestsMention({ reviews }: { reviews: Review[] | undefined }) {
   return (
     // Matches airbnb.co.in: hairline above, 22px heading, 16px-radius chips with 16px/500 labels.
     <div className="mt-10 border-t border-line-light pt-10">
-      <h3 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">Guests mention</h3>
+      <h3 className="text-heading font-medium">Guests mention</h3>
       <div className="relative mt-4">
         <div ref={scroller} className="no-scrollbar flex gap-3 overflow-x-auto scroll-smooth px-1.5 py-2 pr-16">
           {mentions.map((m) => (

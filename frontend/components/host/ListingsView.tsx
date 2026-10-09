@@ -47,7 +47,7 @@ export function ListingsView() {
         </div>
       ) : listings.length === 0 ? (
         <div className="mt-16 max-w-md">
-          <h2 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">You don’t have any listings yet</h2>
+          <h2 className="text-heading font-medium">You don’t have any listings yet</h2>
           <p className="mt-2 text-base text-muted">Create your first listing to start welcoming guests.</p>
           <Link href="/hosting/listings/new" className="mt-6 inline-block rounded-btn bg-brand-gradient px-6 py-3.5 text-base font-medium text-white">
             Create a listing

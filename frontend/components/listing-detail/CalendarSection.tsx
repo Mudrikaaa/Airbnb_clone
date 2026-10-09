@@ -23,7 +23,7 @@ export function CalendarSection({ city, nights }: { city: string; nights: Set<st
 
   return (
     <section id="calendar" className="scroll-mt-24 border-b border-line py-12">
-      <h2 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">{heading}</h2>
+      <h2 className="text-heading font-medium">{heading}</h2>
       <p className="mt-2 text-sm text-muted">{sub}</p>
       <div className="mt-6 -ml-2 [&_.rdp-months]:justify-start [&_.rdp-root]:[--cell:44px]">
         <AvailabilityCalendar nights={nights} checkIn={checkIn} checkOut={checkOut} onChange={setDates} months={twoMonths ? 2 : 1} />

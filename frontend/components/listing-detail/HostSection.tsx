@@ -26,7 +26,7 @@ export function HostSection({ host }: { host: Host }) {
 
   return (
     <section className="py-12">
-      <h2 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">Meet your host</h2>
+      <h2 className="text-heading font-medium">Meet your host</h2>
       <div className="mt-8 flex flex-col gap-10 lg:flex-row lg:gap-16">
         <div className="lg:w-[395px] lg:shrink-0">
           <div className="grid grid-cols-[1fr_auto] items-center rounded-3xl bg-white px-4 py-6 shadow-pill">

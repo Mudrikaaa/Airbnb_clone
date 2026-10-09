@@ -47,7 +47,7 @@ export function WishlistView() {
         </div>
       ) : data.length === 0 ? (
         <div className="mt-12 max-w-md">
-          <h2 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">Create your first wishlist</h2>
+          <h2 className="text-heading font-medium">Create your first wishlist</h2>
           <p className="mt-2 text-base">As you search, click the heart icon to save your favourite places to a wishlist.</p>
           <Link href="/" className="mt-6 inline-block rounded-btn bg-ink px-6 py-3.5 text-base font-semibold text-white hover:bg-black">
             Start exploring

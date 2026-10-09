@@ -79,7 +79,7 @@ export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
       >
         <SegmentShell segment="where" active={active} hovered={hovered} setHovered={setHovered} onOpen={open}
           clear={draft.location ? () => update({ location: "" }) : undefined} className="w-[280px] shrink-0 !pl-[31px]">
-          <label htmlFor="search-where" className="block text-xs font-medium text-ink">
+          <label htmlFor="search-where" className="block text-label font-medium text-ink">
             Where
           </label>
           <input
@@ -98,7 +98,7 @@ export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
 
         <SegmentShell segment="when" active={active} hovered={hovered} setHovered={setHovered} onOpen={open}
           clear={dates ? () => update({ checkIn: null, checkOut: null }) : undefined} className="w-[287px] shrink-0 !pl-[26px]">
-          <span className="block text-xs font-medium text-ink">When</span>
+          <span className="block text-label font-medium text-ink">When</span>
           <span className={`block truncate text-sm ${dates ? "font-medium text-ink" : "text-muted"}`}>{dates ?? "Add dates"}</span>
         </SegmentShell>
 
@@ -107,7 +107,7 @@ export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
         <SegmentShell segment="who" active={active} hovered={hovered} setHovered={setHovered} onOpen={open}
           clear={guests ? () => update({ adults: 0, children: 0, infants: 0, pets: 0 }) : undefined}
           className={`flex-1 !pl-[26px] ${active ? "!pr-[150px]" : "!pr-[76px]"}`}>
-          <span className="block text-xs font-medium text-ink">Who</span>
+          <span className="block text-label font-medium text-ink">Who</span>
           <span className={`block truncate text-sm ${guests ? "font-medium text-ink" : "text-muted"}`}>{guests ?? "Add guests"}</span>
         </SegmentShell>
 

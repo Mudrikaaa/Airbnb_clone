@@ -13,7 +13,7 @@ export function LoginPrompt({ heading, title, text }: Props) {
   return (
     <main className="px-6 pb-24 pt-8 md:px-20 md:pt-[92px]">
       <h1 className="text-[32px] font-semibold leading-9 tracking-[-0.96px]">{heading}</h1>
-      <h2 className="mt-[50px] text-[22px] font-medium leading-[26px] tracking-[-0.44px]">{title}</h2>
+      <h2 className="mt-[50px] text-heading font-medium">{title}</h2>
       <p className="mt-3 text-base text-ink">{text}</p>
       <button type="button" onClick={openLogin} className="mt-6 h-12 rounded-btn bg-brand-gradient px-6 text-base font-medium text-white hover:brightness-95">
         Log in

@@ -20,7 +20,7 @@ export function TitleRow({ title, saved, onToggleSave }: Props) {
   return (
     // airbnb.com: title starts 38px below the 80px header
     <div className="flex items-end justify-between gap-6 pt-[37px]">
-      <h1 className="text-[26px] font-medium leading-[30px] text-ink">{title}</h1>
+      <h1 className="text-title-lg font-medium text-ink">{title}</h1>
       <div className="hidden shrink-0 items-center gap-1 md:flex">
         <button type="button" onClick={share} className={action}>
           <Share size={16} strokeWidth={2} /> Share

@@ -13,14 +13,14 @@ export function Description({ text }: { text: string }) {
   const long = text.length > CLAMP_CHARS;
   return (
     <section className="border-b border-line py-8">
-      <p className={`whitespace-pre-line text-base leading-6 ${long ? "line-clamp-6" : ""}`}>{text}</p>
+      <p className={`whitespace-pre-line text-body ${long ? "line-clamp-6" : ""}`}>{text}</p>
       {long && (
         <GreyButton onClick={() => setOpen(true)} className="mt-6 flex items-center gap-1">
           Show more <ChevronRight size={16} strokeWidth={2.5} />
         </GreyButton>
       )}
       <Modal open={open} onClose={() => setOpen(false)} title="About this space" widthClass="max-w-[780px]">
-        <p className="whitespace-pre-line text-base leading-6">{text}</p>
+        <p className="whitespace-pre-line text-body">{text}</p>
       </Modal>
     </section>
   );

@@ -14,7 +14,7 @@ export function Overview({ listing }: { listing: ListingDetail }) {
 
   return (
     <section className="pb-8">
-      <h2 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">
+      <h2 className="text-heading font-medium">
         {/* Every property type here is a whole place, so Airbnb's "Entire …" wording always applies. */}
         Entire {listing.property_type} in {listing.city}, {listing.country}
       </h2>

@@ -91,7 +91,7 @@ export function ListingView({ id }: { id: number }) {
         <div id="photos" ref={photosRef} className="scroll-mt-24">
           <PhotoGrid images={listing.images} title={listing.title} />
         </div>
-        <h1 className="mt-6 text-[26px] font-medium leading-[30px] md:hidden">{listing.title}</h1>
+        <h1 className="mt-6 text-title-lg font-medium md:hidden">{listing.title}</h1>
 
         <div className="mt-8 flex gap-[8.4%]">
           {/* Left column: 653 / 1120 */}

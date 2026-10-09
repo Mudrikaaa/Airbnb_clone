@@ -29,7 +29,7 @@ export function ListingCard({ listing, onToggleWishlist, dates, stayQuery }: Pro
         <HeartButton saved={listing.is_wishlisted} onToggle={() => onToggleWishlist(listing.id, listing.is_wishlisted)} />
       </div>
 
-      <div className="mt-2.5 text-[15px] leading-[19px]">
+      <div className="mt-2.5 text-card">
         <div className="flex items-start justify-between gap-2">
           <h3 className="truncate font-medium text-ink">
             {typeInCity(listing.property_type, listing.city)}
@@ -43,7 +43,7 @@ export function ListingCard({ listing, onToggleWishlist, dates, stayQuery }: Pro
         <p className="mt-[3px] truncate text-muted">{listing.title}</p>
         <p className="mt-[3px] truncate text-muted">
           {plural(listing.bedrooms, "bedroom")}
-          <span className="mx-1 font-bold text-[#C1C1C1]">·</span>
+          <span className="mx-1 text-[#C1C1C1]">·</span>
           {plural(listing.beds, "bed")}
         </p>
         {dates && <p className="mt-[3px] text-muted">{formatDateRange(dates.checkIn, dates.checkOut)}</p>}

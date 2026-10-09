@@ -12,7 +12,7 @@ export function Amenities({ amenities }: { amenities: Amenity[] }) {
   const [open, setOpen] = useState(false);
   return (
     <section id="amenities" className="scroll-mt-24 border-b border-line py-12">
-      <h2 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">What this place offers</h2>
+      <h2 className="text-heading font-medium">What this place offers</h2>
       <ul className="mt-6 grid gap-x-4 sm:grid-cols-2">
         {amenities.slice(0, PREVIEW).map((a) => (
           <li key={a.id} className="flex items-center gap-4 py-3 text-base">

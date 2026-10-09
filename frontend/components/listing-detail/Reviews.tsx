@@ -87,9 +87,9 @@ export function Reviews({ reviews, average, count, categories }: Props) {
         const CategoryIcon = CATEGORY_ICONS[key];
         return (
           <div key={key} className="flex min-w-[96px] flex-1 flex-col border-l border-line-light px-6">
-            <p className="text-sm font-medium leading-[18px]">{label}</p>
+            <p className="text-label font-medium">{label}</p>
             {/* Airbnb shows category averages with exactly one decimal (4.75 → 4.8) */}
-            <p className="mt-1 text-base font-medium leading-5">{categories[key]!.toFixed(1)}</p>
+            <p className="text-label font-medium">{categories[key]!.toFixed(1)}</p>
             <CategoryIcon size={32} strokeWidth={1.25} className="mt-6" />
           </div>
         );

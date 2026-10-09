@@ -14,7 +14,7 @@ type Props = { lat: number; lng: number; place: string };
 export function LocationSection({ lat, lng, place }: Props) {
   return (
     <section id="location" className="scroll-mt-24 border-b border-line py-12">
-      <h2 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">Where you’ll be</h2>
+      <h2 className="text-heading font-medium">Where you’ll be</h2>
       <p className="mt-6 text-base">{place}</p>
       {/* isolate: keep Leaflet's internal z-indexes (400+) from rising above the header */}
       <div className="isolate mt-6 h-[320px] overflow-hidden rounded-[20px] bg-line-light md:h-[480px]">
