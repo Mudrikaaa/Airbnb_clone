@@ -27,17 +27,18 @@ export function GuestsMention({ reviews }: { reviews: Review[] | undefined }) {
   if (mentions.length === 0) return null;
 
   return (
-    <div className="mt-10">
-      <h3 className="text-lg font-medium">Guests mention</h3>
+    // Matches airbnb.co.in: hairline above, 22px heading, 16px-radius chips with 16px/500 labels.
+    <div className="mt-10 border-t border-line-light pt-10">
+      <h3 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">Guests mention</h3>
       <div className="relative mt-4">
-        <div ref={scroller} className="no-scrollbar flex gap-3 overflow-x-auto scroll-smooth px-1 py-2 pr-14">
+        <div ref={scroller} className="no-scrollbar flex gap-3 overflow-x-auto scroll-smooth px-1.5 py-2 pr-16">
           {mentions.map((m) => (
             <span
               key={m.key}
-              className="flex h-12 shrink-0 items-center gap-2 rounded-full bg-white pl-3 pr-5 text-sm font-medium shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+              className="flex h-14 shrink-0 items-center gap-3 rounded-2xl bg-white px-4 text-base font-medium shadow-[0_2px_10px_rgba(0,0,0,0.10)]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- tiny static icon */}
-              <img src={`/icons/mentions/${m.key}.png`} alt="" aria-hidden className="h-7 w-7" />
+              <img src={`/icons/mentions/${m.key}.png`} alt="" aria-hidden className="h-6 w-6" />
               {m.label}
               <span className="font-normal text-muted">{m.count}</span>
             </span>
@@ -47,7 +48,7 @@ export function GuestsMention({ reviews }: { reviews: Review[] | undefined }) {
           type="button"
           aria-label="Scroll mentions"
           onClick={() => scroller.current?.scrollBy({ left: 240 })}
-          className="absolute right-0 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border border-line bg-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:shadow-md"
+          className="absolute right-0 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-line bg-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:shadow-md"
         >
           <ChevronRight size={16} strokeWidth={2.5} />
         </button>
