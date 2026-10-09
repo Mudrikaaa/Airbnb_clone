@@ -5,6 +5,9 @@
 body {
   background: #ffffff;
   color: #222222;
+  /* Same text rendering as airbnb.com (thinner, crisper glyphs on macOS) */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Tailwind v4 gives buttons the arrow cursor; airbnb.com shows the hand on every clickable control. */
