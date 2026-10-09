@@ -176,3 +176,19 @@ def test_users_and_me(client, listing, host, guest):
     assert client.get("/api/users/me").status_code == 401
     assert client.get("/api/users/me", headers={"X-User-Id": "nope"}).status_code == 401
     assert client.get("/api/users/me", headers={"X-User-Id": "999"}).status_code == 401
+
+
+def test_rooms_and_multiple_property_types(client, db, host):
+    make_listing(db, host, title="Small cottage", property_type="cottage", bedrooms=1, beds=1, bathrooms=1)
+    make_listing(db, host, title="Big villa", property_type="villa", bedrooms=4, beds=6, bathrooms=3)
+    make_listing(db, host, title="Mid cabin", property_type="cabin", bedrooms=2, beds=3, bathrooms=1)
+
+    def titles(**params):
+        return sorted(i["title"] for i in client.get("/api/listings", params=params).json()["items"])
+
+    assert titles(bedrooms=2) == ["Big villa", "Mid cabin"]  # "at least"
+    assert titles(beds=4) == ["Big villa"]
+    assert titles(bathrooms=2) == ["Big villa"]
+    assert titles(property_type="villa,cabin") == ["Big villa", "Mid cabin"]  # any of them
+    assert titles(property_type="cottage,villa", bedrooms=2) == ["Big villa"]  # combined with other filters
+    assert client.get("/api/listings", params={"bedrooms": 0}).status_code == 422

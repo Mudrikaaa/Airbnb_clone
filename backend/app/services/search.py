@@ -44,8 +44,14 @@ def search_conditions(params: ListingSearchParams) -> list[ColumnElement[bool]]:
         conditions.append(Listing.price_per_night >= params.min_price)
     if params.max_price is not None:
         conditions.append(Listing.price_per_night <= params.max_price)
-    if params.property_type:
-        conditions.append(Listing.property_type == params.property_type)
+    if types := params.property_types:
+        conditions.append(Listing.property_type.in_(types))  # several allowed: villa OR cabin
+    if params.bedrooms:
+        conditions.append(Listing.bedrooms >= params.bedrooms)
+    if params.beds:
+        conditions.append(Listing.beds >= params.beds)
+    if params.bathrooms:
+        conditions.append(Listing.bathrooms >= params.bathrooms)
     if params.category:
         conditions.append(Listing.category == params.category)
 

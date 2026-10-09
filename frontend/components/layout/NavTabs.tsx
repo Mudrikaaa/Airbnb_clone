@@ -1,21 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { toast } from "sonner";
+import { usePathname } from "next/navigation";
 
-// Airbnb's top-level tabs. Only Homes exists in this clone; the others are "coming soon".
+// Airbnb's top-level tabs. Only Homes exists in this clone; the others open "coming soon" pages.
 // Emoji stand in for Airbnb's own 3D illustrations, which we don't copy.
 const TABS = [
-  { key: "homes", label: "Homes", emoji: "🏠" },
-  { key: "experiences", label: "Experiences", emoji: "🎈" },
-  { key: "services", label: "Services", emoji: "🛎️" },
+  { key: "homes", label: "Homes", emoji: "🏠", href: "/" },
+  { key: "experiences", label: "Experiences", emoji: "🎈", href: "/experiences" },
+  { key: "services", label: "Services", emoji: "🛎️", href: "/services" },
 ];
 
 export function NavTabs({ compact = false }: { compact?: boolean }) {
+  const pathname = usePathname();
+  const current = pathname.startsWith("/experiences") ? "experiences" : pathname.startsWith("/services") ? "services" : "homes";
   return (
     <nav aria-label="Categories of stays" className="flex items-stretch gap-8">
       {TABS.map((tab) => {
-        const active = tab.key === "homes";
+        const active = tab.key === current;
         const content = (
           <>
             <span aria-hidden className={`leading-none transition-transform group-hover:scale-110 ${compact ? "text-2xl" : "text-[34px]"}`}>
@@ -27,14 +29,10 @@ export function NavTabs({ compact = false }: { compact?: boolean }) {
           </>
         );
         const className = "group relative flex items-center gap-2 pb-3 pt-2";
-        return active ? (
-          <Link key={tab.key} href="/" className={className} aria-current="page">
+        return (
+          <Link key={tab.key} href={tab.href} className={className} aria-current={active ? "page" : undefined}>
             {content}
           </Link>
-        ) : (
-          <button key={tab.key} type="button" className={className} onClick={() => toast(`${tab.label} are coming soon`)}>
-            {content}
-          </button>
         );
       })}
     </nav>

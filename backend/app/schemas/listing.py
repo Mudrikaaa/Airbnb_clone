@@ -18,8 +18,11 @@ class ListingSearchParams(BaseModel):
     guests: int | None = Field(None, ge=1)
     min_price: int | None = Field(None, ge=0)
     max_price: int | None = Field(None, ge=0)
-    property_type: str | None = None
+    property_type: str | None = Field(None, description="Comma-separated; listing may be ANY of them")
     category: str | None = None
+    bedrooms: int | None = Field(None, ge=1, le=50, description="At least this many bedrooms")
+    beds: int | None = Field(None, ge=1, le=50, description="At least this many beds")
+    bathrooms: int | None = Field(None, ge=1, le=50, description="At least this many bathrooms")
     amenities: str | None = Field(None, description="Comma-separated amenity ids; listing must have ALL")
     page: int = Field(1, ge=1)
     page_size: int = Field(20, ge=1, le=50)
@@ -34,6 +37,10 @@ class ListingSearchParams(BaseModel):
             raise ValueError("min_price can't be greater than max_price")
         _ = self.amenity_ids  # fail fast (422) on malformed ids
         return self
+
+    @property
+    def property_types(self) -> list[str]:
+        return [t.strip() for t in (self.property_type or "").split(",") if t.strip()]
 
     @property
     def amenity_ids(self) -> list[int]:

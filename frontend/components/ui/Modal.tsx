@@ -11,10 +11,14 @@ type Props = {
   footer?: React.ReactNode;
   /** Tailwind max-width class for the dialog. */
   widthClass?: string;
+  /** Tailwind class for the corners on tablet and up (the Filters dialog uses airbnb.com's 32px). */
+  roundedClass?: string;
+  /** Tailwind max-height class (the Filters dialog is the window height minus 80px, like airbnb.com). */
+  maxHeightClass?: string;
 };
 
 /** Airbnb-style centred dialog: 12px radius, title bar with a close button on the left, optional footer. */
-export function Modal({ open, onClose, title, children, footer, widthClass = "max-w-[568px]" }: Props) {
+export function Modal({ open, onClose, title, children, footer, widthClass = "max-w-[568px]", roundedClass = "md:rounded-xl", maxHeightClass = "max-h-[calc(100vh-40px)]" }: Props) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -36,7 +40,7 @@ export function Modal({ open, onClose, title, children, footer, widthClass = "ma
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`flex max-h-[calc(100vh-40px)] w-full ${widthClass} flex-col rounded-t-xl bg-white shadow-panel md:rounded-xl`}
+        className={`flex ${maxHeightClass} w-full ${widthClass} flex-col rounded-t-xl bg-white shadow-panel ${roundedClass}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <header className="relative flex h-16 shrink-0 items-center justify-center border-b border-line-light px-6">

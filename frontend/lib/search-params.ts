@@ -12,7 +12,11 @@ export type SearchState = {
   category: string | null;
   minPrice: number | null;
   maxPrice: number | null;
-  propertyType: string | null;
+  propertyTypes: string[];
+  /** Minimum bedrooms / beds / bathrooms; 0 = any. */
+  bedrooms: number;
+  beds: number;
+  bathrooms: number;
   amenities: number[];
 };
 
@@ -27,7 +31,10 @@ export const EMPTY_SEARCH: SearchState = {
   category: null,
   minPrice: null,
   maxPrice: null,
-  propertyType: null,
+  propertyTypes: [],
+  bedrooms: 0,
+  beds: 0,
+  bathrooms: 0,
   amenities: [],
 };
 
@@ -57,7 +64,10 @@ export function parseSearch(params: ReadableParams): SearchState {
     category: params.get("category"),
     minPrice: int(params.get("minPrice")),
     maxPrice: int(params.get("maxPrice")),
-    propertyType: params.get("propertyType"),
+    propertyTypes: (params.get("propertyType") ?? "").split(",").filter(Boolean),
+    bedrooms: int(params.get("bedrooms")) ?? 0,
+    beds: int(params.get("beds")) ?? 0,
+    bathrooms: int(params.get("bathrooms")) ?? 0,
     amenities: (params.get("amenities") ?? "")
       .split(",")
       .map((s) => int(s))
@@ -77,7 +87,10 @@ export function toUrlQuery(state: SearchState): string {
   if (state.category) q.set("category", state.category);
   if (state.minPrice !== null) q.set("minPrice", String(state.minPrice));
   if (state.maxPrice !== null) q.set("maxPrice", String(state.maxPrice));
-  if (state.propertyType) q.set("propertyType", state.propertyType);
+  if (state.propertyTypes.length) q.set("propertyType", state.propertyTypes.join(","));
+  for (const key of ["bedrooms", "beds", "bathrooms"] as const) {
+    if (state[key] > 0) q.set(key, String(state[key]));
+  }
   if (state.amenities.length) q.set("amenities", state.amenities.join(","));
   return q.toString();
 }
@@ -99,7 +112,10 @@ export function toApiQuery(state: SearchState, page: number, pageSize: number): 
   if (state.category) q.set("category", state.category);
   if (state.minPrice !== null) q.set("min_price", String(state.minPrice));
   if (state.maxPrice !== null) q.set("max_price", String(state.maxPrice));
-  if (state.propertyType) q.set("property_type", state.propertyType);
+  if (state.propertyTypes.length) q.set("property_type", state.propertyTypes.join(","));
+  for (const key of ["bedrooms", "beds", "bathrooms"] as const) {
+    if (state[key] > 0) q.set(key, String(state[key]));
+  }
   if (state.amenities.length) q.set("amenities", state.amenities.join(","));
   q.set("page", String(page));
   q.set("page_size", String(pageSize));
@@ -119,7 +135,8 @@ export function guestSummary(state: SearchState): string | null {
 export function activeFilterCount(state: SearchState): number {
   return (
     (state.minPrice !== null || state.maxPrice !== null ? 1 : 0) +
-    (state.propertyType ? 1 : 0) +
+    (state.propertyTypes.length ? 1 : 0) +
+    (state.bedrooms || state.beds || state.bathrooms ? 1 : 0) +
     state.amenities.length
   );
 }

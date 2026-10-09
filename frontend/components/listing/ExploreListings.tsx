@@ -63,7 +63,7 @@ export function ExploreListings() {
   return (
     <>
       <CategoryBar state={state} onOpenFilters={() => setFiltersOpen(true)} />
-      <FiltersModal open={filtersOpen} onClose={() => setFiltersOpen(false)} resultCount={total} />
+      <FiltersModal open={filtersOpen} onClose={() => setFiltersOpen(false)} state={state} />
 
       <main className="px-6 pb-8 pt-6 md:px-10 xl:px-12">
         {error ? (

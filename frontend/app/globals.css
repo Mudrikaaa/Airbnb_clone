@@ -125,3 +125,49 @@ body {
 .rdp-today:not(.rdp-selected) .rdp-day_button {
   text-decoration: underline;
 }
+
+/* ---------------------------------------------------------------- two-thumb price slider
+   Two transparent <input type=range> stacked on one track. Only the thumbs take pointer events,
+   so both handles stay draggable. */
+.dual-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.dual-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 1px solid #b0b0b0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  cursor: grab;
+}
+.dual-range::-moz-range-thumb {
+  pointer-events: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 1px solid #b0b0b0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  cursor: grab;
+}
+.dual-range:focus-visible::-webkit-slider-thumb {
+  border-color: #222;
+  box-shadow: 0 0 0 2px #222;
+}
+.dual-range::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.dual-range::-moz-range-track {
+  background: transparent;
+}

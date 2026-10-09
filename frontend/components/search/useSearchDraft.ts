@@ -38,8 +38,10 @@ export function useSearchDraft() {
     });
 
   const submit = () => {
-    const query = toUrlQuery(draft);
-    // Searching always lands on the explore page, even when started from a listing page.
+    // Nothing typed, picked or counted = "show me everything", like Airbnb: back to all homes,
+    // dropping any old category / filters rather than silently keeping them.
+    const nothingEntered = !draft.location.trim() && !draft.checkIn && draft.adults + draft.children + draft.infants + draft.pets === 0;
+    const query = nothingEntered ? "" : toUrlQuery(draft);
     router.push(query ? `/?${query}` : "/");
     if (pathname === "/") window.scrollTo({ top: 0 });
   };
