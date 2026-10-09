@@ -178,6 +178,15 @@ def test_users_and_me(client, listing, host, guest):
     assert client.get("/api/users/me", headers={"X-User-Id": "999"}).status_code == 401
 
 
+def test_soft_deleted_listings_do_not_make_a_host(client, db, listing, host):
+    # Only active listings count: a user whose listings are all deleted gets "Become a host" again.
+    listing.is_active = False
+    db.commit()
+    users = {u["name"]: u for u in client.get("/api/users").json()}
+    assert users["Hana Host"]["is_host"] is False
+    assert client.get("/api/users/me", headers=auth(host)).json()["is_host"] is False
+
+
 def test_rooms_and_multiple_property_types(client, db, host):
     make_listing(db, host, title="Small cottage", property_type="cottage", bedrooms=1, beds=1, bathrooms=1)
     make_listing(db, host, title="Big villa", property_type="villa", bedrooms=4, beds=6, bathrooms=3)

@@ -53,16 +53,19 @@ export function ProfileMenu({ hideHostLink = false }: { hideHostLink?: boolean }
 }
 
 function HostLink() {
-  const { user, setMode, openLogin } = useAuth();
+  const { user, setMode } = useAuth();
   const router = useRouter();
-  // This header only appears on traveller pages (/hosting has its own), so it always offers hosting.
-  const label = "Switch to hosting";
+  // This header only appears on traveller pages (/hosting has its own). Users with listings switch
+  // to their dashboard; everyone else is offered Airbnb's "become a host" intro.
+  // Before hydration the server rendered "Become a host" (no user yet), so match it first.
+  const isHost = useHydrated() && (user?.is_host ?? false);
+  const label = isHost ? "Switch to hosting" : "Become a host";
   return (
     <button
       type="button"
       className="hidden h-10 rounded-full px-3 text-sm font-medium hover:bg-chip lg:block"
       onClick={() => {
-        if (!user) return openLogin();
+        if (!isHost) return router.push("/become-a-host");
         setMode("hosting");
         router.push("/hosting");
       }}
@@ -115,10 +118,11 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
       </button>
       <hr className="my-2 border-line-light" />
       <button type="button" className={row} onClick={() => {
+        if (!hosting && !user.is_host) return go("/become-a-host");
         setMode(hosting ? "traveling" : "hosting");
         go(hosting ? "/" : "/hosting");
       }}>
-        {hosting ? "Switch to travelling" : "Switch to hosting"}
+        {hosting ? "Switch to travelling" : user.is_host ? "Switch to hosting" : "Become a host"}
       </button>
       <button type="button" className={row} onClick={() => { onNavigate(); openLogin(); }}>
         Log in as another user

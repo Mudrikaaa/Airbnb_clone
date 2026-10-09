@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "@/components/layout/Logo";
 import { ComingSoonModal } from "@/components/ui/ComingSoonModal";
@@ -12,6 +13,8 @@ import { ComingSoonModal } from "@/components/ui/ComingSoonModal";
  */
 export function CreateFlowHeader() {
   const [helpOpen, setHelpOpen] = useState(false);
+  // Someone becoming a host has no dashboard yet, so Exit goes back home.
+  const exitTo = usePathname().startsWith("/become-a-host") ? "/" : "/hosting/listings";
   const pill = "flex h-10 items-center rounded-[28px] border border-line px-4 text-sm font-medium hover:border-ink";
   return (
     <header className="flex items-center justify-between px-6 py-8 md:px-12">
@@ -20,7 +23,7 @@ export function CreateFlowHeader() {
         <button type="button" onClick={() => setHelpOpen(true)} className={pill}>
           Questions?
         </button>
-        <Link href="/hosting/listings" className={pill}>
+        <Link href={exitTo} className={pill}>
           Exit
         </Link>
       </div>

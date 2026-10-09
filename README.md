@@ -17,6 +17,7 @@ A full-stack Airbnb clone: browse and search homes, see listing details, book da
 - **Book** — "Confirm and pay" (mock card form), instant confirmation, overlapping dates are rejected with a 409.
 - **Trips / Wishlists** — upcoming, past and cancelled stays with cancel; hearts everywhere with optimistic updates.
 - **Reviews** — after a completed stay, "Write a review" on Trips (1–5 stars + comment); the listing's rating updates straight away.
+- **Become a host** — users without listings get "Become a host", an intro page and a one-question-per-screen create flow (Back / Next, progress bar); publishing makes them a host.
 - **Host mode** — Today / Upcoming reservations with payouts, all reservations, a listings grid/table, and a create / edit form (photos by URL with preview and reorder) with delete rules.
 
 ## Tech stack

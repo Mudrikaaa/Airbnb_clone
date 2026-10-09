@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import useSWR from "swr";
 import { toast } from "sonner";
 import { DeleteListingModal } from "@/components/host/DeleteListingModal";
-import { ErrorText, OptionCard, Section, Stepper, TextArea, TextField } from "@/components/host/listing-form/FormParts";
-import { PhotoEditor } from "@/components/host/listing-form/PhotoEditor";
-import { EMPTY_VALUES, FIELD_ORDER, LIMITS, toInput, validate, valuesFromListing, type FormErrors, type FormValues } from "@/components/host/listing-form/form-state";
-import { Icon } from "@/components/ui/Icon";
-import { ApiError, apiFetch, swrFetcher } from "@/lib/api";
+import {
+  AmenityFields, BasicsFields, CategoryFields, DescriptionFields, LocationFields, PhotoFields, PriceFields, PropertyTypeFields, TitleFields,
+} from "@/components/host/listing-form/FieldGroups";
+import { Section } from "@/components/host/listing-form/FormParts";
+import { EMPTY_VALUES, FIELD_ORDER, toInput, validate, valuesFromListing, type FormErrors, type FormValues } from "@/components/host/listing-form/form-state";
+import { ApiError, apiFetch } from "@/lib/api";
 import { refreshAfterListingChange } from "@/lib/host-cache";
-import type { Amenity, Category, ListingDetail, PropertyType } from "@/lib/types";
+import type { ListingDetail } from "@/lib/types";
 
 /**
  * One form for both "Create a listing" (no `listing`) and "Edit listing" (`listing` = current data).
@@ -28,15 +28,12 @@ export function ListingForm({ listing }: { listing?: ListingDetail }) {
   const [submitting, setSubmitting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const { data: types } = useSWR<PropertyType[]>("/api/meta/property-types", swrFetcher);
-  const { data: categories } = useSWR<Category[]>("/api/meta/categories", swrFetcher);
-  const { data: amenities } = useSWR<Amenity[]>("/api/meta/amenities", swrFetcher);
-
   // Editing a field clears that field's error straight away (client or server).
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) => {
     setValues((v) => ({ ...v, [key]: value }));
     setErrors((e) => (e[key] ? { ...e, [key]: undefined } : e));
   };
+  const group = { values, errors, set };
 
   const showErrors = (found: FormErrors, message: string) => {
     setErrors(found);
@@ -87,97 +84,30 @@ export function ListingForm({ listing }: { listing?: ListingDetail }) {
 
       <div className="mt-8">
         <Section title="Which of these best describes your place?">
-          <div id="field-property_type" role="radiogroup" aria-label="Property type" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {(types ?? []).map((t) => (
-              <OptionCard key={t.key} selected={values.property_type === t.key} onSelect={() => set("property_type", t.key)}>
-                {t.label}
-              </OptionCard>
-            ))}
-            {!types && <Skeleton count={8} />}
-          </div>
-          <ErrorText>{errors.property_type}</ErrorText>
-
+          <PropertyTypeFields {...group} />
           <h3 className="mb-3 mt-10 text-base font-semibold">What does your place stand out for?</h3>
-          <div id="field-category" role="radiogroup" aria-label="Category" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {(categories ?? []).map((c) => (
-              <OptionCard key={c.key} selected={values.category === c.key} onSelect={() => set("category", c.key)}>
-                <Icon name={c.icon} size={28} strokeWidth={1.5} />
-                {c.label}
-              </OptionCard>
-            ))}
-            {!categories && <Skeleton count={8} />}
-          </div>
-          <ErrorText>{errors.category}</ErrorText>
+          <CategoryFields {...group} />
         </Section>
-
         <Section title="Where’s your place located?" hint="Guests only get the exact address after they book.">
-          <div className="grid gap-4">
-            <TextField name="address" label="Street address" value={values.address} onChange={(v) => set("address", v)} error={errors.address} placeholder="12 Beach Road" />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField name="city" label="City" value={values.city} onChange={(v) => set("city", v)} error={errors.city} placeholder="Anjuna" />
-              <TextField name="state" label="State / region (optional)" value={values.state} onChange={(v) => set("state", v)} error={errors.state} placeholder="Goa" />
-            </div>
-            <TextField name="country" label="Country" value={values.country} onChange={(v) => set("country", v)} error={errors.country} />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField name="latitude" label="Latitude" value={values.latitude} onChange={(v) => set("latitude", v)} error={errors.latitude} inputMode="decimal" placeholder="15.5733" />
-              <TextField name="longitude" label="Longitude" value={values.longitude} onChange={(v) => set("longitude", v)} error={errors.longitude} inputMode="decimal" placeholder="73.7407" />
-            </div>
-            <p className="text-sm text-muted">Tip: right-click your spot in Google Maps and click the coordinates to copy them.</p>
-          </div>
+          <LocationFields {...group} />
         </Section>
-
         <Section title="Share some basics about your place">
-          <div id="field-max_guests">
-            <Stepper label="Guests" value={values.max_guests} min={LIMITS.guests.min} max={LIMITS.guests.max} onChange={(n) => set("max_guests", n)} />
-            <Stepper label="Bedrooms" value={values.bedrooms} min={LIMITS.bedrooms.min} max={LIMITS.bedrooms.max} onChange={(n) => set("bedrooms", n)} />
-            <Stepper label="Beds" value={values.beds} min={LIMITS.beds.min} max={LIMITS.beds.max} onChange={(n) => set("beds", n)} />
-            <Stepper label="Bathrooms" value={values.bathrooms} min={LIMITS.bathrooms.min} max={LIMITS.bathrooms.max} onChange={(n) => set("bathrooms", n)} />
-          </div>
+          <BasicsFields {...group} />
         </Section>
-
         <Section title="Tell guests what your place has to offer" hint="You can add more amenities after you publish.">
-          <div id="field-amenity_ids" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {(amenities ?? []).map((a) => {
-              const checked = values.amenity_ids.includes(a.id);
-              return (
-                <label
-                  key={a.id}
-                  className={`flex cursor-pointer flex-col items-start gap-3 rounded-xl p-4 text-base transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ink ${
-                    checked ? "border-2 border-ink bg-subtle" : "border border-line-strong hover:border-ink"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="sr-only"
-                    checked={checked}
-                    onChange={() => set("amenity_ids", checked ? values.amenity_ids.filter((id) => id !== a.id) : [...values.amenity_ids, a.id])}
-                  />
-                  <Icon name={a.icon} size={26} strokeWidth={1.5} />
-                  <span className="font-medium">{a.name}</span>
-                </label>
-              );
-            })}
-            {!amenities && <Skeleton count={6} />}
-          </div>
-          <ErrorText>{errors.amenity_ids}</ErrorText>
+          <AmenityFields {...group} />
         </Section>
-
         <Section title="Add some photos of your place" hint="The first photo is your cover. Use the arrows to reorder.">
-          <PhotoEditor urls={values.image_urls} onChange={(urls) => set("image_urls", urls)} error={errors.image_urls} />
+          <PhotoFields {...group} />
         </Section>
-
         <Section title="Now, let’s give your place a title and description">
           <div className="grid gap-6">
-            <TextField name="title" label="Title" value={values.title} onChange={(v) => set("title", v)} error={errors.title} maxLength={LIMITS.title.max} placeholder="Sea-breeze villa with private pool" />
-            <TextArea name="description" label="Description" value={values.description} onChange={(v) => set("description", v)} error={errors.description} maxLength={LIMITS.description.max} placeholder="Describe the space, the neighbourhood and what makes a stay here special." />
+            <TitleFields {...group} />
+            <DescriptionFields {...group} />
           </div>
         </Section>
-
         <Section title="Now, set your price" hint="Guests also pay a 14% service fee on top. You can change these any time.">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TextField name="price_per_night" label="Price per night" value={values.price_per_night} onChange={(v) => set("price_per_night", v.replace(/[^\d]/g, ""))} error={errors.price_per_night} prefix="₹" inputMode="numeric" placeholder="4500" />
-            <TextField name="cleaning_fee" label="Cleaning fee (one-off)" value={values.cleaning_fee} onChange={(v) => set("cleaning_fee", v.replace(/[^\d]/g, ""))} error={errors.cleaning_fee} prefix="₹" inputMode="numeric" placeholder="0" />
-          </div>
+          <PriceFields {...group} />
         </Section>
       </div>
 
@@ -212,15 +142,5 @@ export function ListingForm({ listing }: { listing?: ListingDetail }) {
         />
       )}
     </form>
-  );
-}
-
-function Skeleton({ count }: { count: number }) {
-  return (
-    <>
-      {Array.from({ length: count }, (_, i) => (
-        <div key={i} aria-hidden className="h-[88px] animate-pulse rounded-xl bg-line-light" />
-      ))}
-    </>
   );
 }
