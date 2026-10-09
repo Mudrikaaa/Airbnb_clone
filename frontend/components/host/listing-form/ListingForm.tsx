@@ -73,7 +73,7 @@ export function ListingForm({ listing }: { listing?: ListingDetail }) {
   };
 
   return (
-    <form onSubmit={submit} noValidate className="mx-auto max-w-[760px] px-6 pb-40 pt-4">
+    <form onSubmit={submit} noValidate className="mx-auto max-w-[640px] px-6 pb-40 pt-4">
       <h1 className="text-[32px] font-semibold leading-9 tracking-[-0.96px]">{editing ? "Edit your listing" : "Create your listing"}</h1>
       <p className="mt-3 text-lg text-muted">
         {editing ? "Update the details guests see. Changes go live as soon as you save." : "Tell guests about your place. You can edit everything later."}

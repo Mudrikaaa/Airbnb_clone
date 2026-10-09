@@ -24,8 +24,9 @@ export function ListingsView() {
 
   return (
     <main className="px-6 pb-24 pt-8 md:px-20 md:pt-6">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-[32px] font-semibold leading-9 tracking-[-0.96px]">Your listings</h1>
+      <div className="flex items-start justify-between gap-4">
+        {/* title top is 4px below the 40px controls row (airbnb.com: y=125 vs 121) */}
+        <h1 className="pt-1 text-[32px] font-semibold leading-9 tracking-[-0.96px]">Your listings</h1>
         <div className="flex items-center gap-4">
           <button type="button" className={circle} aria-label={view === "grid" ? "Change to list view" : "Change to grid view"} onClick={() => setView(view === "grid" ? "list" : "grid")}>
             {view === "grid" ? <List size={18} /> : <LayoutGrid size={18} />}
@@ -39,9 +40,9 @@ export function ListingsView() {
       {error ? (
         <p className="mt-12 text-base text-muted">We couldn’t load your listings. Check that the API is running and refresh.</p>
       ) : !listings ? (
-        <div aria-hidden className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div aria-hidden className="mt-8 grid gap-x-6 gap-y-10 min-[550px]:grid-cols-2 md:mt-16 min-[1280px]:grid-cols-3 min-[1700px]:grid-cols-4">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="aspect-[411/457] animate-pulse rounded-2xl bg-line-light" />
+            <div key={i} className="aspect-[20/19] animate-pulse rounded-2xl bg-line-light" />
           ))}
         </div>
       ) : listings.length === 0 ? (
@@ -53,7 +54,7 @@ export function ListingsView() {
           </Link>
         </div>
       ) : view === "grid" ? (
-        <div className="mt-8 grid gap-x-4 gap-y-10 sm:grid-cols-2 md:mt-16 xl:grid-cols-3">
+        <div className="mt-8 grid gap-x-6 gap-y-10 min-[550px]:grid-cols-2 md:mt-16 min-[1280px]:grid-cols-3 min-[1700px]:grid-cols-4">
           {listings.map((l) => (
             <ListingTile key={l.id} listing={l} onDelete={setDeleting} />
           ))}
@@ -67,12 +68,12 @@ export function ListingsView() {
   );
 }
 
-/** Photo with Airbnb's white "Listed" pill (measured: 16px radius photo, pill 12px/500, 8px 12px padding, 16px inset). */
+/** Photo with Airbnb's white "Listed" pill (measured: 20:19, 16px radius photo, pill 12px/500, 8px 12px padding, 16px inset). */
 function ListingTile({ listing, onDelete }: { listing: ListingCard; onDelete: (l: ListingCard) => void }) {
   return (
     <article>
       <Link href={`/hosting/listings/${listing.id}/edit`} className="block">
-        <div className="relative aspect-[411/390] overflow-hidden rounded-2xl bg-line-light">
+        <div className="relative aspect-[20/19] overflow-hidden rounded-2xl bg-line-light">
           {/* eslint-disable-next-line @next/next/no-img-element -- host photos come from arbitrary URLs */}
           <img src={listing.images[0]} alt="" className="h-full w-full object-cover" />
           <span className="absolute left-4 top-4 rounded-[40px] bg-white px-3 py-2 text-xs font-medium">Listed</span>

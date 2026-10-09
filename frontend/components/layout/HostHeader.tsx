@@ -8,14 +8,18 @@ import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { useAuth } from "@/lib/auth-context";
 
 const TABS = [
-  { href: "/hosting", label: "Reservations" },
-  { href: "/hosting/listings", label: "Listings" },
+  { href: "/hosting", label: "Today", isActive: (p: string) => p === "/hosting" || p === "/hosting/reservations" },
+  { href: "/hosting/calendar", label: "Calendar", isActive: (p: string) => p.startsWith("/hosting/calendar") },
+  { href: "/hosting/listings", label: "Listings", isActive: (p: string) => p.startsWith("/hosting/listings") },
+  { href: "/hosting/messages", label: "Messages", isActive: (p: string) => p.startsWith("/hosting/messages") },
 ];
 
 /**
- * Header of the hosting dashboard (airbnb.com/hosting): logo, centred tabs, "Switch to travelling"
- * and the profile / menu circles. Measured: 96px bar, 14px/500 tabs (grey, dark when active,
- * 12px radius, 11px 12px padding) with a small red marker under the active one.
+ * Header of the hosting dashboard, measured on airbnb.co.in/hosting at 1440 and 1920px wide:
+ * a *static* white bar, 96px plus a 1px #EBEBEB bottom border (97px in total), 48px side padding.
+ * Tabs are centred on the page, 40px tall, 8px apart: 14px/500, #6C6C6C (active #222) with a
+ * separate 2px #222 underline exactly as wide as the label, 3px below the text.
+ * The height is fixed on purpose so nothing in here can make the bar grow.
  */
 export function HostHeader() {
   const pathname = usePathname();
@@ -28,33 +32,34 @@ export function HostHeader() {
   }, [mode, setMode]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line-light bg-white">
-      <div className="flex min-h-24 flex-wrap items-center justify-between gap-x-4 px-6 md:px-12">
-        <div className="order-1 md:w-[260px]">
+    <header className="relative z-40 border-b border-line-light bg-white">
+      <div className="flex h-24 items-center px-6 max-md:h-auto max-md:flex-wrap max-md:py-3 md:px-12">
+        {/* flex-1 on both sides keeps the tab group centred whatever the side contents' widths */}
+        <div className="flex flex-1 items-center">
           <Logo />
         </div>
 
-        <nav aria-label="Hosting" className="order-3 flex w-full justify-center gap-1 pb-2 md:order-2 md:w-auto md:pb-0">
+        <nav aria-label="Hosting" className="flex items-center gap-2 max-md:order-last max-md:w-full max-md:justify-center max-md:pt-2">
           {TABS.map((tab) => {
-            const active = tab.href === "/hosting" ? pathname === "/hosting" : pathname.startsWith(tab.href);
+            const active = tab.isActive(pathname);
             return (
               <Link
                 key={tab.href}
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative rounded-xl px-3 py-[11px] text-sm font-medium leading-[18px] hover:bg-chip ${active ? "text-ink" : "text-muted"}`}
+                className={`relative h-10 rounded-xl px-3 py-[11px] text-sm font-medium leading-[18px] hover:bg-chip ${active ? "text-ink" : "text-muted"}`}
               >
                 {tab.label}
-                {active && <span className="absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-[#DA1249]" />}
+                {active && <span aria-hidden className="absolute bottom-[6px] left-3 right-3 h-0.5 bg-ink" />}
               </Link>
             );
           })}
         </nav>
 
-        <div className="order-2 flex items-center justify-end gap-1 md:order-3 md:w-[260px]">
+        <div className="flex flex-1 items-center justify-end gap-2">
           <button
             type="button"
-            className="hidden h-10 rounded-full px-3 text-sm font-medium hover:bg-chip lg:block"
+            className="hidden h-10 rounded-[20px] px-3 text-sm font-medium leading-[18px] hover:bg-chip md:block"
             onClick={() => {
               setMode("traveling");
               router.push("/");
