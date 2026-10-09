@@ -26,6 +26,7 @@ def test_create_booking_returns_201_with_server_computed_price(client, db, listi
     assert body["service_fee"] == expected.service_fee
     assert body["total_price"] == expected.total
     assert body["status"] == "confirmed"
+    assert body["host_payout"] == 4000 * 3 + listing.cleaning_fee  # no service fee for the host
     assert body["guest"]["id"] == guest.id
     assert body["listing"]["cover_image"] == "https://img.test/0.jpg"
     assert body["listing"]["host"]["name"] == "Hana Host"

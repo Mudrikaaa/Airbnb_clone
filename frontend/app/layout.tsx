@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { HideOnCheckout } from "@/components/layout/HideOnCheckout";
+import { HideOnFlows } from "@/components/layout/HideOnFlows";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { AuthProvider } from "@/lib/auth-context";
 import "./globals.css";
@@ -33,9 +33,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </Suspense>
           {children}
           <Suspense fallback={null}>
-            <HideOnCheckout>
+            <HideOnFlows>
               <Footer />
-            </HideOnCheckout>
+            </HideOnFlows>
             <MobileNav />
           </Suspense>
           <LoginModal />

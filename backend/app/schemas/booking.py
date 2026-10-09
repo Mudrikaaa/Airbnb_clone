@@ -34,6 +34,8 @@ class BookingOut(BaseModel):
     cleaning_fee: int
     service_fee: int
     total_price: int
+    # What the host receives: the stay and cleaning fee, without the service fee the guest pays Airbnb.
+    host_payout: int
     status: str
     created_at: datetime
     has_review: bool
@@ -60,6 +62,7 @@ class BookingOut(BaseModel):
             cleaning_fee=booking.cleaning_fee,
             service_fee=booking.service_fee,
             total_price=booking.total_price,
+            host_payout=booking.total_price - booking.service_fee,
             status=booking.status,
             created_at=booking.created_at,
             has_review=booking.review is not None,

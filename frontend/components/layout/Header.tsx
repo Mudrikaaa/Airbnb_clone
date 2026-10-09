@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { CreateFlowHeader } from "@/components/layout/CreateFlowHeader";
+import { HostHeader } from "@/components/layout/HostHeader";
 import { Logo } from "@/components/layout/Logo";
 import { NavTabs } from "@/components/layout/NavTabs";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
@@ -9,6 +11,7 @@ import { CompactSearch } from "@/components/search/CompactSearch";
 import { MobileSearch } from "@/components/search/MobileSearch";
 import { SearchBar } from "@/components/search/SearchBar";
 import type { Segment } from "@/components/search/useSearchDraft";
+import { isCheckout, isHostDashboard, isHostForm } from "@/lib/chrome";
 
 /**
  * Fixed header. On "/" it starts expanded (tabs + big search pill, 200px tall like airbnb.com) and
@@ -18,7 +21,6 @@ import type { Segment } from "@/components/search/useSearchDraft";
 export function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const isCheckout = pathname.startsWith("/book/");
   // airbnb.com's Trips / Wishlists headers have no search pill, just the logo and account buttons.
   const hideSearch = pathname === "/trips" || pathname === "/wishlists";
   const [scrolled, setScrolled] = useState(false);
@@ -48,13 +50,17 @@ export function Header() {
   const expanded = forced !== null || (isHome && !scrolled);
 
   // Airbnb's checkout header: just the logo on a plain bar, not sticky (measured: 80px + bottom border).
-  if (isCheckout) {
+  if (isCheckout(pathname)) {
     return (
       <header className="flex h-20 items-center border-b border-line-light bg-white px-6 md:px-20">
         <Logo />
       </header>
     );
   }
+
+  // Hosting pages have their own headers (dashboard: tabs; create/edit: logo + Exit).
+  if (isHostForm(pathname)) return <CreateFlowHeader />;
+  if (isHostDashboard(pathname)) return <HostHeader />;
 
   return (
     <>

@@ -18,7 +18,7 @@ export function MobileNav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Listing pages show their own fixed "Reserve" footer instead (like Airbnb).
-  if (pathname.startsWith("/rooms/") || pathname.startsWith("/book/")) return null;
+  if (pathname.startsWith("/rooms/") || pathname.startsWith("/book/") || pathname.startsWith("/hosting")) return null;
 
   const tab = (active: boolean) =>
     `flex flex-1 flex-col items-center gap-1 pt-2 text-[10px] font-medium ${active ? "text-brand" : "text-muted"}`;

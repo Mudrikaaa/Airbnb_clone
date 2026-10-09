@@ -12,10 +12,26 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     public detail: string,
+    /** For 422s: the message for each invalid field, keyed by the request field name (e.g. "price_per_night"). */
+    public fields: Record<string, string> = {},
   ) {
     super(detail);
     this.name = "ApiError";
   }
+}
+
+type ValidationItem = { loc?: (string | number)[]; msg?: string };
+
+// The backend's 422 body is {"detail": "...", "errors": [{loc: ["body", "price_per_night"], msg}]}.
+// Turn the list into { price_per_night: "..." } so forms can show each message under its field.
+function fieldErrorsFrom(errors: unknown): Record<string, string> {
+  const fields: Record<string, string> = {};
+  if (!Array.isArray(errors)) return fields;
+  for (const item of errors as ValidationItem[]) {
+    const field = item.loc?.find((part): part is string => typeof part === "string" && part !== "body" && part !== "query");
+    if (field && !(field in fields)) fields[field] = (item.msg ?? "Invalid value").replace(/^Value error, /, "");
+  }
+  return fields;
 }
 
 export function getStoredUserId(): string | null {
@@ -39,13 +55,15 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   if (!res.ok) {
     // Backend errors are always {"detail": "..."}.
     let detail = res.statusText;
+    let fields: Record<string, string> = {};
     try {
       const body = await res.json();
       if (typeof body?.detail === "string") detail = body.detail;
+      fields = fieldErrorsFrom(body?.errors);
     } catch {
       // non-JSON error body; keep statusText
     }
-    throw new ApiError(res.status, detail);
+    throw new ApiError(res.status, detail, fields);
   }
 
   if (res.status === 204) return undefined as T;

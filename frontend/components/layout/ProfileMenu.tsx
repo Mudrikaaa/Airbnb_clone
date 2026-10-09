@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useHydrated } from "@/lib/use-hydrated";
 
 /** Right side of the header: "Become a host", avatar circle and the hamburger menu. */
-export function ProfileMenu() {
+export function ProfileMenu({ hideHostLink = false }: { hideHostLink?: boolean }) {
   const { user: authUser, openLogin } = useAuth();
   const hydrated = useHydrated();
   const user = hydrated ? authUser : null; // match the server HTML during hydration
@@ -33,7 +33,7 @@ export function ProfileMenu() {
 
   return (
     <div ref={rootRef} className="relative flex items-center gap-1">
-      <HostLink />
+      {!hideHostLink && <HostLink />}
       <button type="button" aria-label={user ? "Your profile" : "Log in or sign up"} className={`${circle} ml-1 overflow-hidden`}
         onClick={() => (user ? setOpen((o) => !o) : openLogin())}>
         {user ? <Avatar user={user} size={40} /> : <CircleUserRound size={22} strokeWidth={1.75} />}

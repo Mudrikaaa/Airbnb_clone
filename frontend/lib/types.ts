@@ -110,9 +110,33 @@ export type Booking = {
   cleaning_fee: number;
   service_fee: number;
   total_price: number;
+  /** What the host receives (stay + cleaning fee, no guest service fee). */
+  host_payout: number;
   status: "confirmed" | "cancelled";
   created_at: string;
   has_review: boolean;
 };
 
 export type Trips = { upcoming: Booking[]; past: Booking[]; cancelled: Booking[] };
+
+/** Body of POST /listings and PUT /listings/{id} (mirrors backend ListingWrite). */
+export type ListingInput = {
+  title: string;
+  description: string;
+  property_type: string;
+  category: string;
+  city: string;
+  state: string | null;
+  country: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  price_per_night: number;
+  cleaning_fee: number;
+  max_guests: number;
+  bedrooms: number;
+  beds: number;
+  bathrooms: number;
+  image_urls: string[];
+  amenity_ids: number[];
+};
