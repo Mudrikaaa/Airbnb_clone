@@ -56,7 +56,7 @@ export function Reviews({ reviews, average, count, categories }: Props) {
           </div>
           <h2 className="mt-4 text-[22px] font-medium tracking-[-0.44px]">Guest favourite</h2>
           <p className="mt-2 max-w-sm text-lg text-muted">This home is a guest favourite based on ratings, reviews and reliability</p>
-          <button type="button" onClick={() => setHowOpen(true)} className="mt-2 text-base font-medium underline">
+          <button type="button" onClick={() => setHowOpen(true)} className="mt-3 text-sm text-muted underline">
             How reviews work
           </button>
         </div>
@@ -72,9 +72,9 @@ export function Reviews({ reviews, average, count, categories }: Props) {
       {/* Overall rating: 124×4px bars, #DDD track with #222 fill */}
       <div className="w-48 shrink-0 pr-6">
         <p className="text-sm font-medium">Overall rating</p>
-        <ul className="mt-2 space-y-1">
+        <ul className="mt-1.5">
           {breakdown.map(({ stars, n }) => (
-            <li key={stars} className="flex items-center gap-2 text-xs text-muted">
+            <li key={stars} className="flex h-[18px] items-center gap-2 text-xs leading-none text-muted">
               <span className="w-2">{stars}</span>
               <span className="h-1 w-[124px] rounded-sm bg-line">
                 <span className="block h-1 rounded-sm bg-ink" style={{ width: `${reviews && reviews.length ? (n / reviews.length) * 100 : 0}%` }} />
@@ -86,11 +86,10 @@ export function Reviews({ reviews, average, count, categories }: Props) {
       {RATING_CATEGORIES.filter((c) => categories[c.key] !== null).map(({ key, label }) => {
         const CategoryIcon = CATEGORY_ICONS[key];
         return (
-          <div key={key} className="flex min-w-[96px] flex-1 flex-col justify-between border-l border-line px-6">
-            <div>
-              <p className="text-sm font-medium">{label}</p>
-              <p className="text-lg font-medium">{formatRating(categories[key]!)}</p>
-            </div>
+          <div key={key} className="flex min-w-[96px] flex-1 flex-col border-l border-line-light px-6">
+            <p className="text-sm font-medium leading-[18px]">{label}</p>
+            {/* Airbnb shows category averages with exactly one decimal (4.75 → 4.8) */}
+            <p className="mt-1 text-base font-medium leading-5">{categories[key]!.toFixed(1)}</p>
             <CategoryIcon size={32} strokeWidth={1.25} className="mt-6" />
           </div>
         );
