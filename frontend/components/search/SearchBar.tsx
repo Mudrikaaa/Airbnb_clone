@@ -114,7 +114,7 @@ export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
         <button
           type="submit"
           aria-label="Search"
-          className={`absolute right-[9px] flex h-12 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-brand-deep text-white transition-[width] duration-200 hover:bg-[#C30F42] ${
+          className={`absolute right-[9px] flex h-12 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-brand-deep text-white transition-[width] duration-200 ${
             active ? "w-[100px]" : "w-12"
           }`}
         >
