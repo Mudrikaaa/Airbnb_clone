@@ -48,3 +48,44 @@ export function Laurel({ flip = false, size = 32 }: { flip?: boolean; size?: num
     </svg>
   );
 }
+
+// ---- Large laurel for the reviews header: 4 plump leaves on the outside of a curved stem, curled at the
+// base, dark grey with a soft top-left highlight and a drop shadow for a 3D look. Drawn for this project.
+
+const BIG_LEAVES = [0.18, 0.42, 0.66, 0.9].map((t, i) => {
+  const p = pointAt(t);
+  const a = tangentAngle(t);
+  const outward = ((a - 90) * Math.PI) / 180;
+  return { x: p.x + Math.cos(outward) * 4.2, y: p.y + Math.sin(outward) * 4.2, angle: a + 90 - 32, scale: 1.55 - i * 0.12 };
+});
+
+export function BigLaurel({ flip = false, size = 96, id }: { flip?: boolean; size?: number; id: string }) {
+  return (
+    <svg
+      viewBox="-6 -4 32 58"
+      width={(size * 32) / 58}
+      height={size}
+      aria-hidden
+      style={{ transform: flip ? "scaleX(-1)" : undefined, filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.18))" }}
+    >
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#6B6B6B" />
+          <stop offset="55%" stopColor="#3A3A3A" />
+          <stop offset="100%" stopColor="#222222" />
+        </linearGradient>
+      </defs>
+      {/* stem, ending in a small curl at the base */}
+      <path
+        d={`M${P2.x} ${P2.y} Q${P1.x} ${P1.y} ${P0.x} ${P0.y} q3.5 2.5 1.2 5 q-2 1.6 -3.6 -0.4`}
+        fill="none"
+        stroke="#2E2E2E"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      {BIG_LEAVES.map((l, i) => (
+        <path key={i} d={leafPath(l.scale)} fill={`url(#${id})`} transform={`translate(${l.x.toFixed(2)} ${l.y.toFixed(2)}) rotate(${l.angle.toFixed(1)})`} />
+      ))}
+    </svg>
+  );
+}

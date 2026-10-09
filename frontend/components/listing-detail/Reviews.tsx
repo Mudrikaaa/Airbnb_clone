@@ -3,7 +3,7 @@
 import { CircleCheck, KeyRound, type LucideIcon, Map, MessageSquare, SprayCan, Star, Tag } from "lucide-react";
 import { useState } from "react";
 import { GuestsMention } from "@/components/listing-detail/GuestsMention";
-import { Laurel } from "@/components/listing-detail/Laurel";
+import { BigLaurel } from "@/components/listing-detail/Laurel";
 import { Stars } from "@/components/listing-detail/Overview";
 import { Avatar } from "@/components/ui/Avatar";
 import { GreyButton } from "@/components/ui/GreyButton";
@@ -49,10 +49,10 @@ export function Reviews({ reviews, average, count, categories }: Props) {
       {favourite ? (
         <div className="flex flex-col items-center text-center">
           <div className="flex items-center gap-2">
-            <Laurel size={96} />
-            {/* airbnb.com: 100px / 500 / -2px letter-spacing */}
-            <span className="text-[72px] font-medium leading-none tracking-[-2px] md:text-[100px]">{formatRating(average!)}</span>
-            <Laurel size={96} flip />
+            <BigLaurel size={104} id="laurel-left" />
+            {/* airbnb.co.in: 100px, semibold, -2px letter-spacing */}
+            <span className="text-[72px] font-semibold leading-none tracking-[-2px] md:text-[100px]">{formatRating(average!)}</span>
+            <BigLaurel size={104} flip id="laurel-right" />
           </div>
           <h2 className="mt-4 text-[22px] font-medium tracking-[-0.44px]">Guest favourite</h2>
           <p className="mt-2 max-w-sm text-lg text-muted">This home is a guest favourite based on ratings, reviews and reliability</p>
