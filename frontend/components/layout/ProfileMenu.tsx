@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ArrowLeftRight, Bell, CircleHelp, CircleUserRound, Globe, Heart, LogOut, type LucideIcon, Menu, MessageSquare, Plane, Settings, UserPlus, Users,
+  Bell, CircleHelp, CircleUserRound, Globe, Heart, type LucideIcon, Menu, MessageSquare, Plane, Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,7 +47,9 @@ export function ProfileMenu({ hideHostLink = false }: { hideHostLink?: boolean }
       </button>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-[260px] rounded-xl bg-white py-2 shadow-panel">
+        // airbnb.co.in at 1440px: 265px wide, 12px radius and vertical padding, 0 2px 16px shadow, scrolls when taller
+        // than the window minus 100px (800px max at 900px tall).
+        <div className="absolute right-0 top-[calc(100%+17px)] z-50 max-h-[calc(100vh-100px)] w-[265px] overflow-y-auto rounded-xl bg-white py-3 shadow-[0_2px_16px_rgba(0,0,0,0.12)]">
           <MenuItems onNavigate={() => setOpen(false)} />
         </div>
       )}
@@ -85,7 +87,8 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
   const hosting = usePathname().startsWith("/hosting");
   const [soon, setSoon] = useState<string | null>(null); // feature shown in the Coming soon modal
   const router = useRouter();
-  const row = "block w-full px-4 py-3 text-left text-sm hover:bg-subtle";
+  // Measured rows: 36px tall, 24px side padding, 14px text, 16px icon 10px before the label.
+  const row = "flex min-h-9 w-full items-center gap-[10px] px-6 text-left text-sm hover:bg-subtle";
 
   if (!user) {
     return (
@@ -93,8 +96,8 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
         <button type="button" className={`${row} font-medium`} onClick={() => { onNavigate(); openLogin(); }}>
           Log in or sign up
         </button>
-        <hr className="my-2 border-line-light" />
-        <p className="px-4 pb-1 pt-2 text-xs font-medium text-muted">Log in as…</p>
+        <hr className="mx-6 my-2 border-line-light" />
+        <p className="px-6 pb-1 pt-2 text-xs font-medium text-muted">Log in as…</p>
         {users.map((u) => (
           <button key={u.id} type="button" className={`${row} flex items-center gap-3 !py-2`}
             onClick={() => { loginAs(u.id); onNavigate(); toast.success(`Logged in as ${u.name}`); }}>
@@ -103,7 +106,7 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
             {u.is_host && <span className="text-xs text-muted">{u.is_superhost ? "Superhost" : "Host"}</span>}
           </button>
         ))}
-        <hr className="my-2 border-line-light" />
+        <hr className="mx-6 my-2 border-line-light" />
         <button type="button" className={row} onClick={() => { onNavigate(); toast("Help Centre is coming soon"); }}>
           Help Centre
         </button>
@@ -112,10 +115,12 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
   }
 
   const go = (href: string) => { onNavigate(); router.push(href); };
-  const item = `${row} flex items-center gap-3`;
-  const soonItem = (label: string, Icon: LucideIcon) => (
-    <button type="button" className={item} onClick={() => setSoon(label)}>
-      <Icon size={18} strokeWidth={1.75} /> {label}
+  // Airbnb: the first group is 500 weight, the rest 400; the last groups have no icons.
+  const strong = `${row} font-medium`;
+  const divider = <hr className="mx-6 my-2 border-line-light" />;
+  const soonItem = (label: string, Icon?: LucideIcon, className = row) => (
+    <button type="button" className={className} onClick={() => setSoon(label)}>
+      {Icon && <Icon size={16} strokeWidth={1.75} />} {label}
     </button>
   );
   const toggleHosting = () => {
@@ -125,30 +130,30 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
   };
   return (
     <>
-      <Link href="/wishlists" className={item} onClick={onNavigate}><Heart size={18} strokeWidth={1.75} /> Wishlists</Link>
-      <Link href="/trips" className={item} onClick={onNavigate}><Plane size={18} strokeWidth={1.75} /> Trips</Link>
-      {soonItem("Messages", MessageSquare)}
-      {soonItem("Profile", CircleUserRound)}
-      <hr className="my-2 border-line-light" />
+      <Link href="/wishlists" className={strong} onClick={onNavigate}><Heart size={16} strokeWidth={1.75} /> Wishlists</Link>
+      <Link href="/trips" className={strong} onClick={onNavigate}><Plane size={16} strokeWidth={1.75} /> Trips</Link>
+      {soonItem("Messages", MessageSquare, strong)}
+      {soonItem("Profile", CircleUserRound, strong)}
+      {divider}
       {soonItem("Notifications", Bell)}
       {soonItem("Account settings", Settings)}
       {soonItem("Languages & currency", Globe)}
       {soonItem("Help Centre", CircleHelp)}
-      <hr className="my-2 border-line-light" />
+      {divider}
       {/* Airbnb's "Become a host" block: title + one-line pitch (no illustration) */}
-      <button type="button" className={`${row} flex flex-col items-start gap-1`} onClick={toggleHosting}>
-        <span className="font-medium">{hosting ? "Switch to travelling" : user.is_host ? "Switch to hosting" : "Become a host"}</span>
-        {!hosting && <span className="text-xs leading-4 text-muted">It’s easy to start hosting and earn extra income.</span>}
+      <button type="button" className="flex w-full flex-col items-start px-6 py-1 text-left text-sm hover:bg-subtle" onClick={toggleHosting}>
+        <span className="font-medium leading-[18px]">{hosting ? "Switch to travelling" : user.is_host ? "Switch to hosting" : "Become a host"}</span>
+        {!hosting && <span className="max-w-[160px] text-xs leading-4 text-muted">It’s easy to start hosting and earn extra income.</span>}
       </button>
-      <hr className="my-2 border-line-light" />
-      {soonItem("Refer a host", UserPlus)}
-      {soonItem("Find a co-host", Users)}
-      <hr className="my-2 border-line-light" />
-      <button type="button" className={item} onClick={() => { onNavigate(); openLogin(); }}>
-        <ArrowLeftRight size={18} strokeWidth={1.75} /> Log in as another user
+      {divider}
+      {soonItem("Refer a host")}
+      {soonItem("Find a co-host")}
+      {divider}
+      <button type="button" className={row} onClick={() => { onNavigate(); openLogin(); }}>
+        Log in as another user
       </button>
-      <button type="button" className={item} onClick={() => { logout(); onNavigate(); toast("You’ve been logged out"); router.push("/"); }}>
-        <LogOut size={18} strokeWidth={1.75} /> Log out
+      <button type="button" className={row} onClick={() => { logout(); onNavigate(); toast("You’ve been logged out"); router.push("/"); }}>
+        Log out
       </button>
       {/* Not portaled, so clicks inside it don't count as "outside the menu"; closing it closes the menu too. */}
       <ComingSoonModal open={soon !== null} onClose={() => { setSoon(null); onNavigate(); }} feature={soon ?? ""} />
