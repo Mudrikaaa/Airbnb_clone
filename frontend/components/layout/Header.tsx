@@ -21,7 +21,7 @@ import { isCheckout, isHostDashboard, isHostForm } from "@/lib/chrome";
 export function Header() {
   const pathname = usePathname();
   // The Experiences and Services "coming soon" pages keep the big header (tabs + search), like the home page.
-  const isHome = pathname === "/" || pathname === "/experiences" || pathname === "/services";
+  const isHome = pathname === "/" || pathname === "/homes" || pathname === "/experiences" || pathname === "/services";
   // airbnb.com's Trips / Wishlists headers have no search pill, just the logo and account buttons.
   const hideSearch = pathname === "/trips" || pathname === "/wishlists";
   const [scrolled, setScrolled] = useState(false);

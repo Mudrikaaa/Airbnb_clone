@@ -34,7 +34,7 @@ export function CompactSearch({ onExpand }: { onExpand: (segment: Segment) => vo
         type="button"
         aria-label="Search"
         onClick={() => onExpand("where")}
-        className="grid h-8 w-8 place-items-center rounded-full bg-brand-gradient text-white"
+        className="grid h-8 w-8 place-items-center rounded-full bg-brand-deep text-white"
       >
         <Search size={12} strokeWidth={4} />
       </button>

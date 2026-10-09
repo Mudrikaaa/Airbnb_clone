@@ -18,7 +18,8 @@ type Props = {
 };
 
 /**
- * Desktop search pill (Where | When | Who), measured from airbnb.com: 850×66, 32px segment radius.
+ * Desktop search pill (Where | When | Who), measured from airbnb.com: 850×66, 32px segment radius,
+ * dividers at 281px and 569px, solid #DA1249 search button.
  * The pill turns grey while a segment is open and the open segment becomes a raised white chip.
  */
 export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
@@ -77,7 +78,7 @@ export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
         }`}
       >
         <SegmentShell segment="where" active={active} hovered={hovered} setHovered={setHovered} onOpen={open}
-          clear={draft.location ? () => update({ location: "" }) : undefined} className="flex-[1.05]">
+          clear={draft.location ? () => update({ location: "" }) : undefined} className="w-[280px] shrink-0 !pl-[31px]">
           <label htmlFor="search-where" className="block text-xs font-medium text-ink">
             Where
           </label>
@@ -96,7 +97,7 @@ export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
         <Divider hidden={dividerHidden("where", "when")} />
 
         <SegmentShell segment="when" active={active} hovered={hovered} setHovered={setHovered} onOpen={open}
-          clear={dates ? () => update({ checkIn: null, checkOut: null }) : undefined} className="flex-1">
+          clear={dates ? () => update({ checkIn: null, checkOut: null }) : undefined} className="w-[287px] shrink-0 !pl-[26px]">
           <span className="block text-xs font-medium text-ink">When</span>
           <span className={`block truncate text-sm ${dates ? "font-medium text-ink" : "text-muted"}`}>{dates ?? "Add dates"}</span>
         </SegmentShell>
@@ -105,7 +106,7 @@ export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
 
         <SegmentShell segment="who" active={active} hovered={hovered} setHovered={setHovered} onOpen={open}
           clear={guests ? () => update({ adults: 0, children: 0, infants: 0, pets: 0 }) : undefined}
-          className={`flex-1 ${active ? "!pr-[150px]" : "!pr-[76px]"}`}>
+          className={`flex-1 !pl-[26px] ${active ? "!pr-[150px]" : "!pr-[76px]"}`}>
           <span className="block text-xs font-medium text-ink">Who</span>
           <span className={`block truncate text-sm ${guests ? "font-medium text-ink" : "text-muted"}`}>{guests ?? "Add guests"}</span>
         </SegmentShell>
@@ -113,7 +114,7 @@ export function SearchBar({ initialSegment = null, onActiveChange }: Props) {
         <button
           type="submit"
           aria-label="Search"
-          className={`absolute right-[9px] flex h-12 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-brand-gradient text-white transition-[width] duration-200 hover:brightness-95 ${
+          className={`absolute right-[9px] flex h-12 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-brand-deep text-white transition-[width] duration-200 hover:bg-[#C30F42] ${
             active ? "w-[100px]" : "w-12"
           }`}
         >

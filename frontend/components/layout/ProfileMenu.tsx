@@ -2,14 +2,14 @@
 
 import { CircleUserRound, Menu } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/auth-context";
 import { useHydrated } from "@/lib/use-hydrated";
 
-/** Right side of the header: "Become a host", avatar circle and the hamburger menu. */
+/** Right side of the header: "Switch to hosting", avatar circle and the hamburger menu. */
 export function ProfileMenu({ hideHostLink = false }: { hideHostLink?: boolean }) {
   const { user: authUser, openLogin } = useAuth();
   const hydrated = useHydrated();
@@ -53,19 +53,18 @@ export function ProfileMenu({ hideHostLink = false }: { hideHostLink?: boolean }
 }
 
 function HostLink() {
-  const { user, mode: storedMode, setMode, openLogin } = useAuth();
-  const mode = useHydrated() ? storedMode : "traveling"; // match the server HTML during hydration
+  const { user, setMode, openLogin } = useAuth();
   const router = useRouter();
-  const label = mode === "hosting" ? "Switch to travelling" : "Become a host";
+  // This header only appears on traveller pages (/hosting has its own), so it always offers hosting.
+  const label = "Switch to hosting";
   return (
     <button
       type="button"
       className="hidden h-10 rounded-full px-3 text-sm font-medium hover:bg-chip lg:block"
       onClick={() => {
         if (!user) return openLogin();
-        const next = mode === "hosting" ? "traveling" : "hosting";
-        setMode(next);
-        router.push(next === "hosting" ? "/hosting" : "/");
+        setMode("hosting");
+        router.push("/hosting");
       }}
     >
       {label}
@@ -75,7 +74,9 @@ function HostLink() {
 
 /** Shared by the desktop dropdown and the mobile profile sheet. */
 export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
-  const { user, users, loginAs, logout, mode, setMode, openLogin } = useAuth();
+  const { user, users, loginAs, logout, setMode, openLogin } = useAuth();
+  // Hosting pages say "Switch to travelling"; every traveller page says "Switch to hosting".
+  const hosting = usePathname().startsWith("/hosting");
   const router = useRouter();
   const row = "block w-full px-4 py-3 text-left text-sm hover:bg-subtle";
 
@@ -114,11 +115,10 @@ export function MenuItems({ onNavigate }: { onNavigate: () => void }) {
       </button>
       <hr className="my-2 border-line-light" />
       <button type="button" className={row} onClick={() => {
-        const next = mode === "hosting" ? "traveling" : "hosting";
-        setMode(next);
-        go(next === "hosting" ? "/hosting" : "/");
+        setMode(hosting ? "traveling" : "hosting");
+        go(hosting ? "/" : "/hosting");
       }}>
-        {mode === "hosting" ? "Switch to travelling" : "Switch to hosting"}
+        {hosting ? "Switch to travelling" : "Switch to hosting"}
       </button>
       <button type="button" className={row} onClick={() => { onNavigate(); openLogin(); }}>
         Log in as another user

@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Airbnb's top-level tabs. Only Homes exists in this clone; the others open "coming soon" pages.
+// Airbnb's top-level tabs. All and Homes show the same listings (every listing is a home);
+// Experiences and Services open "coming soon" pages.
 // Emoji stand in for Airbnb's own 3D illustrations, which we don't copy.
 const TABS = [
-  { key: "homes", label: "Homes", emoji: "🏠", href: "/" },
+  { key: "all", label: "All", emoji: "🌐", href: "/" },
+  { key: "homes", label: "Homes", emoji: "🏠", href: "/homes" },
   { key: "experiences", label: "Experiences", emoji: "🎈", href: "/experiences" },
   { key: "services", label: "Services", emoji: "🛎️", href: "/services" },
 ];
 
 export function NavTabs({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
-  const current = pathname.startsWith("/experiences") ? "experiences" : pathname.startsWith("/services") ? "services" : "homes";
+  const current = pathname.startsWith("/experiences") ? "experiences" : pathname.startsWith("/services") ? "services" : pathname === "/homes" ? "homes" : "all";
   return (
     <nav aria-label="Categories of stays" className="flex items-stretch gap-8">
       {TABS.map((tab) => {
