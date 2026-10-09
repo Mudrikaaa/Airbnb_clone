@@ -2,10 +2,10 @@ import { KeyRound, Laptop, Medal, Star, Umbrella, Waves } from "lucide-react";
 import { Laurel } from "@/components/listing-detail/Laurel";
 import { Avatar } from "@/components/ui/Avatar";
 import { formatRating, plural, timeOnAirbnb } from "@/lib/format";
-import { isGuestFavourite, typeInCity } from "@/lib/listing";
+import { isGuestFavourite } from "@/lib/listing";
 import type { ListingDetail } from "@/lib/types";
 
-/** "Villa in Anjuna, India", room counts, rating (or the Guest favourite box), host row and highlights. */
+/** "Entire villa in Anjuna, India", room counts, rating (or the Guest favourite box), host row and highlights. */
 export function Overview({ listing }: { listing: ListingDetail }) {
   const { average, count } = listing.rating;
   const favourite = isGuestFavourite(average, count);
@@ -15,10 +15,15 @@ export function Overview({ listing }: { listing: ListingDetail }) {
   return (
     <section className="pb-8">
       <h2 className="text-[22px] font-medium leading-[26px] tracking-[-0.44px]">
-        {typeInCity(listing.property_type, listing.city)}, {listing.country}
+        {/* Every property type here is a whole place, so Airbnb's "Entire …" wording always applies. */}
+        Entire {listing.property_type} in {listing.city}, {listing.country}
       </h2>
       <p className="mt-1 text-base">
         {[plural(listing.max_guests, "guest"), plural(listing.bedrooms, "bedroom"), plural(listing.beds, "bed"), plural(listing.bathrooms, "bathroom")].join(" · ")}
+      </p>
+      {/* Matches our rule: guests can cancel for a full refund until the day before check-in. */}
+      <p className="mt-3 inline-block rounded-md bg-chip px-2 py-1 text-sm" title="Cancel before check-in for a full refund">
+        Free cancellation
       </p>
 
       {favourite ? (

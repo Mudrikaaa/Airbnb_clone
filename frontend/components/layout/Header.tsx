@@ -67,7 +67,12 @@ export function Header() {
   return (
     <>
       {/* Both states use airbnb.com's white → light-grey fade (the compact one is #FFF → #F7F7F7). */}
-      <header className={`fixed inset-x-0 top-0 z-50 border-b border-line-light ${expanded ? "bg-header-fade" : "bg-[linear-gradient(#FFFFFF,#F7F7F7)]"}`}>
+      {/* The listing page's header is plain white on airbnb.co.in; elsewhere the compact header fades to #F7F7F7. */}
+      <header
+        className={`fixed inset-x-0 top-0 z-50 border-b border-line-light ${
+          expanded ? "bg-header-fade" : pathname.startsWith("/rooms/") ? "bg-white" : "bg-[linear-gradient(#FFFFFF,#F7F7F7)]"
+        }`}
+      >
         {/* Tablet & desktop */}
         <div className="hidden px-10 md:block xl:px-12">
           <div className={`grid grid-cols-[1fr_auto_1fr] items-center gap-4 ${expanded ? "h-24" : "h-20"}`}>

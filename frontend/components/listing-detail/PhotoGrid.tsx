@@ -6,7 +6,8 @@ import { createPortal } from "react-dom";
 import type { ListingImage } from "@/lib/types";
 
 /**
- * 1 large + 4 small photos (airbnb.com: 1120×476, 8px gaps, 12px outer radius) with "Show all photos".
+ * 1 large + 4 small photos (airbnb.co.in: 1120 wide, 60vh − 64px tall capped at 560px — 476 at 900px,
+ * 560 at 1080px — 8px gaps, 12px outer radius) with "Show all photos".
  * On phones it's a single swipeable photo with a counter, like Airbnb's mobile web.
  */
 export function PhotoGrid({ images, title }: { images: ListingImage[]; title: string }) {
@@ -17,7 +18,7 @@ export function PhotoGrid({ images, title }: { images: ListingImage[]; title: st
   return (
     <>
       {/* Desktop / tablet */}
-      <div className="relative mt-6 hidden aspect-[1120/476] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-xl md:grid">
+      <div className="relative mt-6 hidden h-[clamp(320px,calc(60vh-64px),560px)] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-xl md:grid">
         {tiles.map((img, i) => (
           <button
             key={img.id}

@@ -52,7 +52,9 @@ export function ListingView({ id }: { id: number }) {
       return () => io.disconnect();
     };
     const stopPhotos = watch(photosRef.current, setPhotosGone);
-    const stopCard = watch(cardRef.current, setCardGone);
+    // Watch the card itself, not its sticky wrapper: the wrapper's bottom padding stays below the nav
+    // after the card has gone under it, which kept Reserve out of the nav.
+    const stopCard = watch((cardRef.current?.firstElementChild as HTMLElement | null) ?? null, setCardGone);
     return () => {
       stopPhotos();
       stopCard();

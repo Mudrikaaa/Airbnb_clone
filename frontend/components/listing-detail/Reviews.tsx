@@ -17,6 +17,7 @@ type Props = { reviews: Review[] | undefined; average: number | null; count: num
 
 export function Reviews({ reviews, average, count }: Props) {
   const [open, setOpen] = useState(false);
+  const [howOpen, setHowOpen] = useState(false);
 
   if (count === 0) {
     return (
@@ -45,6 +46,9 @@ export function Reviews({ reviews, average, count }: Props) {
           </div>
           <h2 className="mt-4 text-[22px] font-medium tracking-[-0.44px]">Guest favourite</h2>
           <p className="mt-2 max-w-sm text-lg text-muted">This home is a guest favourite based on ratings, reviews and reliability</p>
+          <button type="button" onClick={() => setHowOpen(true)} className="mt-2 text-base font-medium underline">
+            How reviews work
+          </button>
         </div>
       ) : (
         <h2 className="flex items-center gap-2 text-[22px] font-medium tracking-[-0.44px]">
@@ -85,6 +89,13 @@ export function Reviews({ reviews, average, count }: Props) {
           {(reviews ?? []).map((r) => (
             <ReviewCard key={r.id} review={r} />
           ))}
+        </div>
+      </Modal>
+      <Modal open={howOpen} onClose={() => setHowOpen(false)} title="How reviews work">
+        <div className="space-y-4 text-base leading-6">
+          <p>Only guests who stayed and checked out can leave a review, and only one per stay, so every review comes from a completed booking.</p>
+          <p>Guests rate their stay from 1 to 5 stars. The rating you see is the plain average of all reviews for this home, rounded to two decimals, and it updates as soon as a new review is posted.</p>
+          <p>Homes with an average of 4.8 or higher from at least 3 reviews are marked as a Guest favourite.</p>
         </div>
       </Modal>
     </section>

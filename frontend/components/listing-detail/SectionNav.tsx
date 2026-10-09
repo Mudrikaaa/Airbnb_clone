@@ -16,10 +16,10 @@ type Props = { listing: ListingDetail; nights: Set<string>; visible: boolean; sh
 
 /**
  * airbnb.com replaces the header with this 80px bar once the photos scroll away; when the booking
- * card is out of view too, the price and Reserve button move into it.
+ * card is out of view too, the price (or "Add dates for prices"), rating and Reserve move into it.
  */
 export function SectionNav({ listing, nights, visible, showReserve }: Props) {
-  const { hasDates, reserve, canReserve } = useBooking(listing, nights);
+  const { hasDates, reserve, canReserve, quote } = useBooking(listing, nights);
   if (!visible) return null;
   const { average, count } = listing.rating;
 
@@ -36,9 +36,13 @@ export function SectionNav({ listing, nights, visible, showReserve }: Props) {
         {showReserve && (
           <div className="flex items-center gap-6">
             <div className="text-right">
-              <p>
-                <span className="text-base font-semibold">{formatPrice(listing.price_per_night)}</span> <span className="text-sm">night</span>
-              </p>
+              {hasDates && quote ? (
+                <p>
+                  <span className="text-base font-semibold">{formatPrice(quote.total)}</span> <span className="text-sm">for {plural(quote.nights, "night")}</span>
+                </p>
+              ) : (
+                <p className="text-base font-semibold">Add dates for prices</p>
+              )}
               {count > 0 && (
                 <p className="flex items-center justify-end gap-1 text-xs">
                   <Star size={10} fill="currentColor" strokeWidth={0} /> {formatRating(average!)} · <span className="text-muted">{plural(count, "review")}</span>
@@ -51,7 +55,7 @@ export function SectionNav({ listing, nights, visible, showReserve }: Props) {
               disabled={hasDates && !canReserve}
               className="h-12 rounded-full bg-brand-gradient px-6 text-base font-medium text-white disabled:bg-none disabled:bg-line"
             >
-              {hasDates ? "Reserve" : "Check availability"}
+              Reserve
             </button>
           </div>
         )}
