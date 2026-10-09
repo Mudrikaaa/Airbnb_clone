@@ -2,6 +2,7 @@
 
 import { CircleCheck, KeyRound, type LucideIcon, Map, MessageSquare, SprayCan, Star, Tag } from "lucide-react";
 import { useState } from "react";
+import { GuestsMention } from "@/components/listing-detail/GuestsMention";
 import { Laurel } from "@/components/listing-detail/Laurel";
 import { Stars } from "@/components/listing-detail/Overview";
 import { Avatar } from "@/components/ui/Avatar";
@@ -95,6 +96,8 @@ export function Reviews({ reviews, average, count, categories }: Props) {
         );
       })}
       </div>
+
+      <GuestsMention reviews={reviews} />
 
       <div className="mt-10 grid gap-x-24 gap-y-10 md:grid-cols-2">
         {(reviews ?? []).slice(0, PREVIEW).map((r) => (
