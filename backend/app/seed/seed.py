@@ -35,6 +35,7 @@ from app.models import (
     User,
     WishlistItem,
 )
+from app.models.review import CATEGORY_FIELDS
 from app.seed.data.amenities import AMENITIES
 from app.seed.data.listings import LISTINGS
 from app.seed.data.reviews import FIVE_STAR_BY_CATEGORY, FIVE_STAR_GENERAL, FOUR_STAR, THREE_STAR
@@ -212,6 +213,11 @@ def seed_trips(
             trips.append(trip)
 
 
+def category_ratings(overall: int, rng: random.Random) -> dict[str, int]:
+    """Six category scores close to the overall rating (mostly equal, sometimes one lower or higher)."""
+    return {f: max(1, min(5, overall + rng.choice((0, 0, 0, 0, -1, 1)))) for f in CATEGORY_FIELDS}
+
+
 def plan_ratings(count: int, rng: random.Random, include_three: bool = False) -> list[int]:
     """Ratings whose average lands in [MIN_AVG_RATING, MAX_AVG_RATING].
 
@@ -274,6 +280,8 @@ def seed_review_history(
         for category in rng.sample(categories, LISTINGS_WITH_A_THREE_STAR)
     }
 
+    # A separate generator for category scores, so adding them didn't change any other seeded value.
+    category_rng = random.Random(2024)
     for listing in established:
         stays = [
             b for b in bookings
@@ -297,6 +305,7 @@ def seed_review_history(
                     author=stay.guest,
                     booking=stay,
                     rating=rating,
+                    **category_ratings(rating, category_rng),
                     comment=comments.pick(rating, listing.category),
                     created_at=at_midnight(stay.check_out + timedelta(days=rng.randint(1, 6))),
                 )

@@ -36,7 +36,8 @@ def test_create_listing(client, host, amenities):
     assert body["host"]["id"] == host.id
     assert [img["url"] for img in body["images"]] == ["https://img.test/a.jpg", "https://img.test/b.jpg"]
     assert {a["name"] for a in body["amenities"]} == {"Wifi", "Pool"}
-    assert body["rating"] == {"average": None, "count": 0}
+    assert body["rating"]["average"] is None and body["rating"]["count"] == 0
+    assert set(body["rating"]["categories"].values()) == {None}
     # New listing shows up in search and the host's dashboard.
     assert client.get("/api/listings", params={"location": "coorg"}).json()["total"] == 1
     assert len(client.get("/api/host/listings", headers=auth(host)).json()) == 1

@@ -113,7 +113,7 @@ export function ListingView({ id }: { id: number }) {
           </div>
         </div>
 
-        <Reviews reviews={reviews} average={listing.rating.average} count={listing.rating.count} />
+        <Reviews reviews={reviews} average={listing.rating.average} count={listing.rating.count} categories={listing.rating.categories} />
         <LocationSection lat={listing.latitude} lng={listing.longitude} place={place} />
         <HostSection host={listing.host} />
       </div>

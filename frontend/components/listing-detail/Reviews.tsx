@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { CircleCheck, KeyRound, type LucideIcon, Map, MessageSquare, SprayCan, Star, Tag } from "lucide-react";
 import { useState } from "react";
 import { Laurel } from "@/components/listing-detail/Laurel";
 import { Stars } from "@/components/listing-detail/Overview";
@@ -9,13 +9,22 @@ import { GreyButton } from "@/components/ui/GreyButton";
 import { Modal } from "@/components/ui/Modal";
 import { formatRating, formatReviewDate, plural, timeOnAirbnb } from "@/lib/format";
 import { isGuestFavourite } from "@/lib/listing";
-import type { Review } from "@/lib/types";
+import { RATING_CATEGORIES, type CategoryRatings, type RatingCategory, type Review } from "@/lib/types";
 
 const PREVIEW = 6;
 
-type Props = { reviews: Review[] | undefined; average: number | null; count: number };
+type Props = { reviews: Review[] | undefined; average: number | null; count: number; categories: CategoryRatings<number | null> };
 
-export function Reviews({ reviews, average, count }: Props) {
+const CATEGORY_ICONS: Record<RatingCategory, LucideIcon> = {
+  cleanliness: SprayCan,
+  accuracy: CircleCheck,
+  check_in: KeyRound,
+  communication: MessageSquare,
+  location: Map,
+  value: Tag,
+};
+
+export function Reviews({ reviews, average, count, categories }: Props) {
   const [open, setOpen] = useState(false);
   const [howOpen, setHowOpen] = useState(false);
 
@@ -57,8 +66,10 @@ export function Reviews({ reviews, average, count }: Props) {
         </h2>
       )}
 
+      {/* Airbnb's row: overall rating bars, then one column per category (label, average, icon), with dividers */}
+      <div className={`mt-10 flex flex-wrap gap-y-6 lg:flex-nowrap ${favourite ? "border-b border-line pb-8" : ""}`}>
       {/* Overall rating: 124×4px bars, #DDD track with #222 fill */}
-      <div className={`mt-10 w-48 ${favourite ? "border-b border-line pb-8 md:mx-0" : ""}`}>
+      <div className="w-48 shrink-0 pr-6">
         <p className="text-sm font-medium">Overall rating</p>
         <ul className="mt-2 space-y-1">
           {breakdown.map(({ stars, n }) => (
@@ -70,6 +81,19 @@ export function Reviews({ reviews, average, count }: Props) {
             </li>
           ))}
         </ul>
+      </div>
+      {RATING_CATEGORIES.filter((c) => categories[c.key] !== null).map(({ key, label }) => {
+        const CategoryIcon = CATEGORY_ICONS[key];
+        return (
+          <div key={key} className="flex min-w-[96px] flex-1 flex-col justify-between border-l border-line px-6">
+            <div>
+              <p className="text-sm font-medium">{label}</p>
+              <p className="text-lg font-medium">{formatRating(categories[key]!)}</p>
+            </div>
+            <CategoryIcon size={32} strokeWidth={1.25} className="mt-6" />
+          </div>
+        );
+      })}
       </div>
 
       <div className="mt-10 grid gap-x-24 gap-y-10 md:grid-cols-2">

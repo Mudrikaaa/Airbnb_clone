@@ -72,8 +72,20 @@ export type ListingDetail = Omit<ListingCard, "images" | "rating" | "review_coun
   images: ListingImage[];
   amenities: Amenity[];
   host: Host;
-  rating: { average: number | null; count: number };
+  rating: { average: number | null; count: number; categories: CategoryRatings<number | null> };
 };
+
+/** Airbnb's six category ratings (keys match the backend's review columns). */
+export const RATING_CATEGORIES = [
+  { key: "cleanliness", label: "Cleanliness" },
+  { key: "accuracy", label: "Accuracy" },
+  { key: "check_in", label: "Check-in" },
+  { key: "communication", label: "Communication" },
+  { key: "location", label: "Location" },
+  { key: "value", label: "Value" },
+] as const;
+export type RatingCategory = (typeof RATING_CATEGORIES)[number]["key"];
+export type CategoryRatings<T> = Record<RatingCategory, T>;
 
 export type Availability = { booked: { check_in: string; check_out: string }[] };
 
@@ -90,7 +102,7 @@ export type Quote = {
   available: boolean;
 };
 
-export type Review = {
+export type Review = CategoryRatings<number | null> & {
   id: number;
   rating: number;
   comment: string;

@@ -14,6 +14,7 @@ from app.schemas.listing import (
     ListingDetail,
     ListingWrite,
     QuoteOut,
+    CategoryAverages,
     RatingSummary,
 )
 from app.schemas.meta import AmenityOut
@@ -70,7 +71,7 @@ def get_listing_detail(db: Session, listing_id: int, user: User | None) -> Listi
     if listing is None or (not listing.is_active and (user is None or user.id != listing.host_id)):
         raise NotFoundError("Listing not found")
 
-    average, count = rating_summary(db, listing.id)
+    average, count, categories = rating_summary(db, listing.id)
     is_wishlisted = user is not None and bool(
         db.scalar(
             select(exists().where(WishlistItem.user_id == user.id, WishlistItem.listing_id == listing.id))
@@ -81,7 +82,7 @@ def get_listing_detail(db: Session, listing_id: int, user: User | None) -> Listi
         images=[ImageOut.model_validate(img) for img in listing.images],
         amenities=[AmenityOut.model_validate(a) for a in sorted(listing.amenities, key=lambda a: a.id)],
         host=host_summary(db, listing.host),
-        rating=RatingSummary(average=average, count=count),
+        rating=RatingSummary(average=average, count=count, categories=CategoryAverages(**categories)),
         is_wishlisted=is_wishlisted,
     )
 

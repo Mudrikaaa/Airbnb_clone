@@ -114,9 +114,21 @@ class ImageOut(BaseModel):
     position: int
 
 
+class CategoryAverages(BaseModel):
+    """Per-category averages (None when no review rated that category)."""
+
+    cleanliness: float | None
+    accuracy: float | None
+    check_in: float | None
+    communication: float | None
+    location: float | None
+    value: float | None
+
+
 class RatingSummary(BaseModel):
     average: float | None
     count: int
+    categories: CategoryAverages
 
 
 class HostOut(BaseModel):

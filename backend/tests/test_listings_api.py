@@ -150,6 +150,39 @@ def test_review_rules(client, db, listing, guest, other_user):
     assert len(reviews) == 1 and reviews[0]["author"]["name"] == "Gita Guest"
 
 
+def test_category_ratings_are_stored_and_averaged(client, db, listing, guest, other_user):
+    first = make_booking(db, listing, guest, days(-20), days(-18))
+    second = make_booking(db, listing, other_user, days(-10), days(-7))
+    url = f"/api/listings/{listing.id}/reviews"
+    cats = {"cleanliness": 5, "accuracy": 4, "check_in": 5, "communication": 5, "location": 3, "value": 4}
+    assert client.post(url, json={"booking_id": first.id, "rating": 5, "comment": "Great", **cats}, headers=auth(guest)).status_code == 201
+    # The second review skips the categories: AVG ignores NULLs, so it doesn't lower them.
+    assert client.post(url, json={"booking_id": second.id, "rating": 3, "comment": "Okay"}, headers=auth(other_user)).status_code == 201
+    assert client.post(url, json={"booking_id": second.id, "rating": 3, "comment": "x", "value": 0}, headers=auth(other_user)).status_code == 422
+
+    rating = client.get(f"/api/listings/{listing.id}").json()["rating"]
+    assert rating["average"] == 4.0 and rating["count"] == 2
+    assert rating["categories"] == {k: float(v) for k, v in cats.items()}
+    by_rating = {r["rating"]: r for r in client.get(url).json()}
+    assert by_rating[5]["location"] == 3 and by_rating[3]["location"] is None
+
+
+def test_detail_rating_is_one_query(client, db, listing, guest):
+    # Overall + six categories come from one aggregate SELECT (the host card has its own rating query).
+    from sqlalchemy import event
+
+    statements = []
+    listener = lambda *args: statements.append(args[2])  # noqa: E731
+    event.listen(db.get_bind(), "before_cursor_execute", listener)
+    try:
+        client.get(f"/api/listings/{listing.id}")
+    finally:
+        event.remove(db.get_bind(), "before_cursor_execute", listener)
+    category_queries = [s.lower() for s in statements if "avg(reviews.cleanliness)" in s.lower()]
+    assert len(category_queries) == 1 and "avg(reviews.rating)" in category_queries[0]
+    assert "avg(reviews.value)" in category_queries[0]
+
+
 # ---------------------------------------------------------------- wishlists
 
 

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { mutate } from "swr";
 import { Modal } from "@/components/ui/Modal";
 import { ApiError, apiFetch } from "@/lib/api";
-import type { Booking } from "@/lib/types";
+import { RATING_CATEGORIES, type Booking, type RatingCategory } from "@/lib/types";
 
 const MIN_COMMENT = 10;
 const LABELS = ["Terrible", "Poor", "Okay", "Good", "Great"];
@@ -23,6 +23,8 @@ function ReviewForm({ booking, onClose }: { booking: Booking; onClose: () => voi
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
+  // Optional category stars; only the ones the guest picks are sent.
+  const [categories, setCategories] = useState<Partial<Record<RatingCategory, number>>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const length = comment.trim().length;
@@ -36,7 +38,7 @@ function ReviewForm({ booking, onClose }: { booking: Booking; onClose: () => voi
       const id = booking.listing.id;
       await apiFetch(`/api/listings/${id}/reviews`, {
         method: "POST",
-        body: JSON.stringify({ booking_id: booking.id, rating, comment: comment.trim() }),
+        body: JSON.stringify({ booking_id: booking.id, rating, comment: comment.trim(), ...categories }),
       });
       // Refetch the trip (button → stars) and everything that shows this listing's reviews or rating.
       await mutate((key) => {
@@ -102,6 +104,32 @@ function ReviewForm({ booking, onClose }: { booking: Booking; onClose: () => voi
         ))}
         <span className="ml-3 text-base font-medium">{shown ? LABELS[shown - 1] : ""}</span>
       </div>
+
+      <fieldset className="mt-6">
+        <legend className="text-base font-semibold">Rate the details (optional)</legend>
+        <div className="mt-2 grid gap-x-6 sm:grid-cols-2">
+          {RATING_CATEGORIES.map(({ key, label }) => (
+            <div key={key} className="flex items-center justify-between py-1.5" role="radiogroup" aria-label={label}>
+              <span className="text-sm">{label}</span>
+              <span className="flex">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    role="radio"
+                    aria-checked={categories[key] === n}
+                    aria-label={`${label}: ${n} star${n > 1 ? "s" : ""}`}
+                    onClick={() => setCategories((c) => ({ ...c, [key]: n }))}
+                    className="p-0.5"
+                  >
+                    <Star size={18} strokeWidth={1.5} className={n <= (categories[key] ?? 0) ? "fill-ink text-ink" : "text-line-strong"} />
+                  </button>
+                ))}
+              </span>
+            </div>
+          ))}
+        </div>
+      </fieldset>
 
       <label htmlFor="review-comment" className="mt-6 block text-base font-semibold">
         Tell future guests about your stay

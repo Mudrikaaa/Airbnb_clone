@@ -14,6 +14,7 @@ from sqlalchemy.sql import Subquery
 
 from app.errors import ConflictError, ForbiddenError, NotFoundError
 from app.models import BOOKING_CONFIRMED, Booking, Listing, Review, User
+from app.models.review import CATEGORY_FIELDS
 from app.schemas.review import ReviewCreate
 
 
@@ -30,11 +31,18 @@ def rating_stats_subquery() -> Subquery:
     )
 
 
-def rating_summary(db: Session, listing_id: int) -> tuple[float | None, int]:
-    avg, count = db.execute(
-        select(func.avg(Review.rating), func.count(Review.id)).where(Review.listing_id == listing_id)
+def rating_summary(db: Session, listing_id: int) -> tuple[float | None, int, dict[str, float | None]]:
+    """Overall average, review count and the six category averages, all in one query.
+    AVG skips NULLs, so reviews without category ratings don't drag a category down."""
+    row = db.execute(
+        select(
+            func.avg(Review.rating),
+            func.count(Review.id),
+            *(func.avg(getattr(Review, f)) for f in CATEGORY_FIELDS),
+        ).where(Review.listing_id == listing_id)
     ).one()
-    return (round(avg, 2) if avg is not None else None), count
+    rounded = [round(v, 2) if v is not None else None for v in row]
+    return rounded[0], row[1], dict(zip(CATEGORY_FIELDS, rounded[2:]))
 
 
 def list_reviews(db: Session, listing_id: int) -> list[Review]:
@@ -61,9 +69,7 @@ def create_review(db: Session, author: User, listing_id: int, data: ReviewCreate
     if booking.review is not None:
         raise ConflictError("You've already reviewed this stay")
 
-    review = Review(
-        listing_id=listing_id, author=author, booking=booking, rating=data.rating, comment=data.comment
-    )
+    review = Review(listing_id=listing_id, author=author, booking=booking, **data.model_dump(exclude={"booking_id"}))
     db.add(review)
     try:
         db.commit()

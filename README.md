@@ -183,6 +183,12 @@ erDiagram
         int author_id FK
         int booking_id FK, UK "nullable"
         int rating "1-5"
+        int cleanliness "1-5, nullable"
+        int accuracy "1-5, nullable"
+        int check_in "1-5, nullable"
+        int communication "1-5, nullable"
+        int location "1-5, nullable"
+        int value "1-5, nullable"
         text comment
         datetime created_at
     }
@@ -192,11 +198,11 @@ erDiagram
         datetime created_at
     }
 ```
-Integrity is enforced by the database itself, not only by the API: `CHECK (check_out > check_in)`, `CHECK (rating BETWEEN 1 AND 5)`, status `CHECK`, composite primary keys on the two link tables, a unique `reviews.booking_id` (one review per stay), foreign keys switched on for SQLite, and an index on `bookings(listing_id, check_in, check_out)` that serves the overlap query.
+Integrity is enforced by the database itself, not only by the API: `CHECK (check_out > check_in)`, `CHECK (rating BETWEEN 1 AND 5)` (and the same for the six category ratings), status `CHECK`, composite primary keys on the two link tables, a unique `reviews.booking_id` (one review per stay), foreign keys switched on for SQLite, and an index on `bookings(listing_id, check_in, check_out)` that serves the overlap query.
 
 ### Design decisions
 - **Bookings store a price snapshot** (`nightly_price`, `cleaning_fee`, `service_fee`, `total_price`). If a host changes their price later, existing bookings, receipts and payouts must not change — so the numbers are copied at booking time instead of recalculated from the listing.
-- **Ratings are aggregated in queries, not stored** on listings. A stored average can drift out of sync with the reviews; computing it on read (one grouped subquery joined to the listing list) can't. The trade-off is a little extra work per query, which is negligible at this size; a big site would cache the average on the listing and update it when a review is written.
+- **Ratings are aggregated in queries, not stored** on listings. The overall average, the review count and the six category averages (cleanliness, accuracy, check-in, communication, location, value) come from one grouped query; `AVG` skips NULLs, so reviews without category scores don't pull a category down. A stored average can drift out of sync with the reviews; computing it on read (one grouped subquery joined to the listing list) can't. The trade-off is a little extra work per query, which is negligible at this size; a big site would cache the average on the listing and update it when a review is written.
 - **Deletes are soft** (`is_active = false`). Guests' past trips and reviews still point at the listing, so a hard delete would break them (or erase history). A listing with **upcoming confirmed reservations can't be deleted at all** (409 with the reason). Deleted listings disappear from search, wishlists and the host's list, but remain in the database.
 
 ## API overview
@@ -237,7 +243,7 @@ All routes are under `/api`; errors are always `{"detail": "..."}` (422 also inc
 3. Photo uploads to object storage, with image resizing.
 4. Real payments (Stripe) and transactional emails; host / guest messaging.
 5. Map-based search and a price histogram in Filters; text search with suggestions from real data.
-6. Host replies to reviews and per-category ratings.
+6. Host replies to reviews.
 7. Browser tests (Playwright) for the booking and hosting flows, plus CI that runs lint, types, build and `pytest`.
 8. A host calendar with blocked dates, custom prices and seasonal rates.
 
